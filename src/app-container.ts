@@ -1,9 +1,10 @@
+import { Button } from '@material/mwc-button';
 import { LitElement, html, css, nothing, PropertyValueMap } from 'lit'
 import { customElement, query, queryAll, state } from 'lit/decorators.js'
 import { ItemStrip } from './item-strip';
 import { ProjectsManager } from './project-manager';
 import { InterfaceType, Item, Project } from './types';
-import { playJapaneseAudio } from './util';
+import { googleImageSearch, jisho, playJapaneseAudio } from './util';
 
 @customElement('app-container')
 export class AppContainer extends LitElement {
@@ -13,8 +14,10 @@ export class AppContainer extends LitElement {
   public projectsManager: ProjectsManager;
 
   @queryAll('item-strip') itemStrips!: ItemStrip[];
-
   @query('item-strip[highlight]') highlightedStrip?: ItemStrip;
+  @query('#controls [icon="volume_up"]') volumeUpButton?: Button;
+  @query('#controls [icon="images"]') imagesButton?: Button;
+  @query('#controls #jishoButton') jishoButton?: Button;
 
 
   static styles = css`
@@ -31,7 +34,7 @@ export class AppContainer extends LitElement {
   #items {
     display: flex;
     flex-direction: column-reverse;
-    overflow-y: scroll;
+    overflow-y: auto;
     border-top: 1px solid #bdbdbd;
   }
   item-strip {
@@ -56,6 +59,18 @@ export class AppContainer extends LitElement {
   }
   bindEventListeners () {
     window.addEventListener('hashchange', () => this.interpretHash())
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code == 'KeyA' && this.imagesButton) {
+        this.imagesButton.click()
+      }
+      if (e.code == 'KeyG' && this.jishoButton) {
+        this.jishoButton.click()
+      }
+      if (e.code == 'KeyS' && this.volumeUpButton) {
+        this.volumeUpButton.click()
+      }
+    })
   }
 
   render () {
@@ -98,10 +113,14 @@ export class AppContainer extends LitElement {
       <div id="controls">
         <div style="flex:1">
           ${this.highlightIndex >= 0 ? html`
-          <mwc-icon-button icon=volume_up @click=${()=>{this.onVolumeUpButtonClick()}}></mwc-icon-button>
+          <mwc-icon-button icon=volume_up @click=${()=>{this.highlightedStrip?.playAudio()}}></mwc-icon-button>
+          <mwc-icon-button icon=images @click=${()=>{googleImageSearch(this.highlightedStrip!.item.v)}}></mwc-icon-button>
+          <mwc-icon-button id=jishoButton @click=${()=>{jisho(this.highlightedStrip!.item.v)}}>
+            <img src="./img/jisho.ico" style="width:20px;height:20px">
+          </mwc-icon-button>
           ` : nothing}
         </div>
-        <mwc-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-button>
+        <mwc-icon-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-icon-button>
         <mwc-button outlined slot="actionItems" icon="add" @click=${()=>{this.addNewItem()}}>item</mwc-button>
       </div>
       <div id="items">
@@ -121,11 +140,11 @@ export class AppContainer extends LitElement {
     `
   }
 
-  onVolumeUpButtonClick () {
-    if (this.highlightedStrip) {
-      this.highlightedStrip.playAudio()
-    }
-  }
+  // onVolumeUpButtonClick () {
+  //   if (this.highlightedStrip) {
+  //     this.highlightedStrip.playAudio()
+  //   }
+  // }
 
   async highlightItemFromValue (value: string) {
     const index = this.projectsManager.currentProject?.items.findIndex(i=>i.v===value)

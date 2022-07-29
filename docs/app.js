@@ -775,7 +775,7 @@ let Io=class extends zo{};Io.styles=[Xt],Io=i([n("mwc-slider")],Io);var qo=new R
   :host([playing]) #playButton {
     --mdc-theme-primary: red;
   }
-  `,i([c()],Bo.prototype,"pauseTimeS",void 0),i([c()],Bo.prototype,"repeatCount",void 0),i([s({type:Boolean,reflect:!0})],Bo.prototype,"playing",void 0),i([c()],Bo.prototype,"currentWord",void 0),i([p("mwc-dialog")],Bo.prototype,"dialog",void 0),Bo=i([n("projects-manager")],Bo);let Uo=class extends be{constructor(){super(),this.interface="main",this.highlightIndex=-1,this.bindEventListeners(),this.projectsManager=new Bo(this),this.projectsManager.setAttribute("slot","actionItems"),this.interpretHash()}bindEventListeners(){window.addEventListener("hashchange",(()=>this.interpretHash()))}render(){var e;return Y`
+  `,i([c()],Bo.prototype,"pauseTimeS",void 0),i([c()],Bo.prototype,"repeatCount",void 0),i([s({type:Boolean,reflect:!0})],Bo.prototype,"playing",void 0),i([c()],Bo.prototype,"currentWord",void 0),i([p("mwc-dialog")],Bo.prototype,"dialog",void 0),Bo=i([n("projects-manager")],Bo);let Uo=class extends be{constructor(){super(),this.interface="main",this.highlightIndex=-1,this.bindEventListeners(),this.projectsManager=new Bo(this),this.projectsManager.setAttribute("slot","actionItems"),this.interpretHash()}bindEventListeners(){window.addEventListener("hashchange",(()=>this.interpretHash())),window.addEventListener("keydown",(e=>{"KeyA"==e.code&&this.imagesButton&&this.imagesButton.click(),"KeyG"==e.code&&this.jishoButton&&this.jishoButton.click(),"KeyS"==e.code&&this.volumeUpButton&&this.volumeUpButton.click()}))}render(){var e;return Y`
     <mwc-top-app-bar style="">
       ${"project"==this.interface?Y`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>`:Q}
       <div slot="title">${(null===(e=this.projectsManager.currentProject)||void 0===e?void 0:e.name)||"Choose a project"}</div>
@@ -801,10 +801,14 @@ let Io=class extends zo{};Io.styles=[Xt],Io=i([n("mwc-slider")],Io);var qo=new R
       <div id="controls">
         <div style="flex:1">
           ${this.highlightIndex>=0?Y`
-          <mwc-icon-button icon=volume_up @click=${()=>{this.onVolumeUpButtonClick()}}></mwc-icon-button>
+          <mwc-icon-button icon=volume_up @click=${()=>{var e;null===(e=this.highlightedStrip)||void 0===e||e.playAudio()}}></mwc-icon-button>
+          <mwc-icon-button icon=images @click=${()=>{var e;e=this.highlightedStrip.item.v,window.open(`http://www.google.com/search?q=${encodeURIComponent(e)}&tbm=isch`,"_blank")}}></mwc-icon-button>
+          <mwc-icon-button id=jishoButton @click=${()=>{var e;e=this.highlightedStrip.item.v,window.open(`https://jisho.org/search/${encodeURIComponent(e)}`,"_blank")}}>
+            <img src="./img/jisho.ico" style="width:20px;height:20px">
+          </mwc-icon-button>
           `:Q}
         </div>
-        <mwc-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-button>
+        <mwc-icon-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-icon-button>
         <mwc-button outlined slot="actionItems" icon="add" @click=${()=>{this.addNewItem()}}>item</mwc-button>
       </div>
       <div id="items">
@@ -814,7 +818,7 @@ let Io=class extends zo{};Io.styles=[Xt],Io=i([n("mwc-slider")],Io);var qo=new R
             @delete=${()=>{this.deleteItem(e)}} ?highlight=${t==this.highlightIndex}></item-strip>
         `))}
       </div>
-    `:Q}onVolumeUpButtonClick(){this.highlightedStrip&&this.highlightedStrip.playAudio()}async highlightItemFromValue(e){var t;const o=null===(t=this.projectsManager.currentProject)||void 0===t?void 0:t.items.findIndex((t=>t.v===e));void 0!==o&&o>=0&&(this.highlightIndex=o,await this.updateComplete,this.scrollToHighlightedStrip())}scrollToHighlightedStrip(){this.highlightedStrip&&(this.shadowRoot.querySelector("#items").scrollTop=this.highlightedStrip.offsetTop-150)}async onCasinoButtonClick(){this.highlightIndex=~~(Math.random()*this.projectsManager.currentProject.items.length),await this.updateComplete,this.scrollToHighlightedStrip()}navigateTo(e){window.location.hash=encodeURIComponent(e)}addNewItem(){var e,t;const o=prompt("new item value");if(o){if(null===(e=this.projectsManager.currentProject)||void 0===e?void 0:e.items.find((e=>e.v===o)))return void window.toast("This item already exists");null===(t=this.projectsManager.currentProject)||void 0===t||t.items.push({v:o,a:!0}),this.requestUpdate(),this.projectsManager.saveProjectsToLocalStorage()}}deleteItem(e){var t,o;null===(t=this.projectsManager.currentProject)||void 0===t||t.items.splice(this.projectsManager.currentProject.items.indexOf(e),1),0==(null===(o=this.projectsManager.currentProject)||void 0===o?void 0:o.items.length)&&this.projectsManager.stop(),this.requestUpdate(),this.projectsManager.saveProjectsToLocalStorage()}interpretHash(){const e=decodeURIComponent(window.location.hash.slice(1));this.projectsManager.projectExists(e)?(this.interface="project",this.projectsManager.currentProjectName=e):(this.interface="main",this.removeHashFromUrl())}removeHashFromUrl(){window.location.hash=""}};Uo.styles=T`
+    `:Q}async highlightItemFromValue(e){var t;const o=null===(t=this.projectsManager.currentProject)||void 0===t?void 0:t.items.findIndex((t=>t.v===e));void 0!==o&&o>=0&&(this.highlightIndex=o,await this.updateComplete,this.scrollToHighlightedStrip())}scrollToHighlightedStrip(){this.highlightedStrip&&(this.shadowRoot.querySelector("#items").scrollTop=this.highlightedStrip.offsetTop-150)}async onCasinoButtonClick(){this.highlightIndex=~~(Math.random()*this.projectsManager.currentProject.items.length),await this.updateComplete,this.scrollToHighlightedStrip()}navigateTo(e){window.location.hash=encodeURIComponent(e)}addNewItem(){var e,t;const o=prompt("new item value");if(o){if(null===(e=this.projectsManager.currentProject)||void 0===e?void 0:e.items.find((e=>e.v===o)))return void window.toast("This item already exists");null===(t=this.projectsManager.currentProject)||void 0===t||t.items.push({v:o,a:!0}),this.requestUpdate(),this.projectsManager.saveProjectsToLocalStorage()}}deleteItem(e){var t,o;null===(t=this.projectsManager.currentProject)||void 0===t||t.items.splice(this.projectsManager.currentProject.items.indexOf(e),1),0==(null===(o=this.projectsManager.currentProject)||void 0===o?void 0:o.items.length)&&this.projectsManager.stop(),this.requestUpdate(),this.projectsManager.saveProjectsToLocalStorage()}interpretHash(){const e=decodeURIComponent(window.location.hash.slice(1));this.projectsManager.projectExists(e)?(this.interface="project",this.projectsManager.currentProjectName=e):(this.interface="main",this.removeHashFromUrl())}removeHashFromUrl(){window.location.hash=""}};Uo.styles=T`
   .project {
     display: flex;
     align-items: center;
@@ -828,7 +832,7 @@ let Io=class extends zo{};Io.styles=[Xt],Io=i([n("mwc-slider")],Io);var qo=new R
   #items {
     display: flex;
     flex-direction: column-reverse;
-    overflow-y: scroll;
+    overflow-y: auto;
     border-top: 1px solid #bdbdbd;
   }
   item-strip {
@@ -842,13 +846,13 @@ let Io=class extends zo{};Io.styles=[Xt],Io=i([n("mwc-slider")],Io);var qo=new R
     display: flex;
     align-items: center;
   }
-  `,i([c()],Uo.prototype,"interface",void 0),i([c()],Uo.prototype,"highlightIndex",void 0),i([function(e){return l({descriptor:t=>({get(){var t,o;return null!==(o=null===(t=this.renderRoot)||void 0===t?void 0:t.querySelectorAll(e))&&void 0!==o?o:[]},enumerable:!0,configurable:!0})})}("item-strip")],Uo.prototype,"itemStrips",void 0),i([p("item-strip[highlight]")],Uo.prototype,"highlightedStrip",void 0),Uo=i([n("app-container")],Uo);const Vo=T`
+  `,i([c()],Uo.prototype,"interface",void 0),i([c()],Uo.prototype,"highlightIndex",void 0),i([function(e){return l({descriptor:t=>({get(){var t,o;return null!==(o=null===(t=this.renderRoot)||void 0===t?void 0:t.querySelectorAll(e))&&void 0!==o?o:[]},enumerable:!0,configurable:!0})})}("item-strip")],Uo.prototype,"itemStrips",void 0),i([p("item-strip[highlight]")],Uo.prototype,"highlightedStrip",void 0),i([p('#controls [icon="volume_up"]')],Uo.prototype,"volumeUpButton",void 0),i([p('#controls [icon="images"]')],Uo.prototype,"imagesButton",void 0),i([p("#controls #jishoButton")],Uo.prototype,"jishoButton",void 0),Uo=i([n("app-container")],Uo);const Vo=T`
 [jp] {
   font-family: 'Noto Serif JP'
 }
 `;let Jo=class extends be{constructor(){super(...arguments),this.active=!1}get textPart(){return this.shadowRoot.querySelector("#text").textContent}render(){this[this.item.a?"setAttribute":"removeAttribute"]("active","");const e=No(this.item.v);return Y`
       <div style="display: flex;align-items: center;flex:1">
-        <span style="flex:1" id=text jp>${this.item.v}${e?` (${e[4]})`:""}</span>
+        <span style="flex:1" id=text jp>${this.item.v}${e?`(${e[4]})`:""}</span>
         <mwc-icon-button icon="remove_red_eyes"
           @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
         <mwc-icon-button icon="edit"></mwc-icon-button>
@@ -878,6 +882,8 @@ let Io=class extends zo{};Io.styles=[Xt],Io=i([n("mwc-slider")],Io);var qo=new R
 
   #text {
     font-size: 1.5em;
+    position: relative;
+    top: -2px;
   }
   `],i([c()],Jo.prototype,"item",void 0),i([s({type:Boolean,reflect:!0})],Jo.prototype,"active",void 0),Jo=i([n("item-strip")],Jo);let Ko=class extends be{render(){return Y`
     <mwc-icon-button icon=settings @click=${()=>{this.dialog.show()}}></mwc-icon-button>

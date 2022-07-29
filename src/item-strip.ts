@@ -41,6 +41,8 @@ export class ItemStrip extends LitElement {
 
   #text {
     font-size: 1.5em;
+    position: relative;
+    top: -2px;
   }
   `]
 
@@ -50,7 +52,7 @@ export class ItemStrip extends LitElement {
 
     return html`
       <div style="display: flex;align-items: center;flex:1">
-        <span style="flex:1" id=text jp>${this.item.v}${exactSearch ? ` (${exactSearch[4]})` : ''}</span>
+        <span style="flex:1" id=text jp>${this.item.v}${exactSearch ? `(${exactSearch[4]})` : ''}</span>
         <mwc-icon-button icon="remove_red_eyes"
           @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
         <mwc-icon-button icon="edit"></mwc-icon-button>
