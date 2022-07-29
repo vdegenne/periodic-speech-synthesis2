@@ -22,12 +22,12 @@ export class ProjectsManager extends LitElement {
 
   constructor (app: AppContainer) {
     super()
-    this.projects = this.getProjectsFromLocalStorage()
-    if (this.projects == null) {
-      this.getProjectsFromRemote().then(data => {
-        this.projects = data || []
-      })
-    }
+    this.projects = this.getProjectsFromLocalStorage() || []
+    // if (this.projects == null) {
+    //   this.getProjectsFromRemote().then(data => {
+    //     this.projects = data || []
+    //   })
+    // }
     this.app = app
   }
 
@@ -93,7 +93,7 @@ export class ProjectsManager extends LitElement {
       }
       // Remove the project from the list
       this.projects.splice(this.projects.indexOf(project), 1)
-      this.requestUpdate()
+      this.app.requestUpdate()
       this.saveProjectsToLocalStorage()
     }
   }
@@ -112,7 +112,7 @@ export class ProjectsManager extends LitElement {
           name: projectName,
           items: []
         })
-        this.requestUpdate()
+        this.app.requestUpdate()
         this.saveProjectsToLocalStorage()
       }
     }
