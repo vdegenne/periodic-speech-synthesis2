@@ -80,6 +80,8 @@ export class AppContainer extends LitElement {
       <div slot="title">${this.projectsManager.currentProject?.name || 'Choose a project'}</div>
       ${this.interface == 'project' && this.projectsManager.currentProject && this.projectsManager.currentActiveItems!.length > 0 || (this.interface == 'main' && this.projectsManager.isPlaying) ? this.projectsManager : nothing}
       <settings-dialog slot="actionItems"></settings-dialog>
+      <mwc-icon-button slot="actionItems" icon="music_note"
+        @click=${()=>{window.lofiPlayer.show()}}></mwc-icon-button>
       <div style="max-width:800px;margin: 0 auto;display:flex;flex-direction: column;height:calc(100vh - 64px)">
         ${this.interface == 'main' ? this.mainInterface() : nothing }
         ${this.interface == 'project' ? this.projectInterface() : nothing }
