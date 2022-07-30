@@ -5,6 +5,7 @@ import { ItemStrip } from './item-strip';
 import { ProjectsManager } from './project-manager';
 import { InterfaceType, Item, Project } from './types';
 import { googleImageSearch, jisho, playJapaneseAudio } from './util';
+import ms from 'ms';
 
 @customElement('app-container')
 export class AppContainer extends LitElement {
@@ -98,7 +99,7 @@ export class AppContainer extends LitElement {
       <div class="project" @click=${()=>{this.navigateTo(project.name)}}>
         <div style="display:flex;align-items: center;flex:1">
           <mwc-icon>folder</mwc-icon>
-          <span>${project.name}</span>
+          <span>${project.name} <span style="color:#bdbdbd">(${ms(Date.now() - project.updateDate)} ago)</span></span>
         </div>
         <mwc-icon-button icon="delete" style="--mdc-icon-button-size:24px;" @click=${(e)=>{e.stopPropagation();this.projectsManager.deleteProject(project)}}></mwc-icon-button>
       </div>
