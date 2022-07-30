@@ -129,13 +129,19 @@ export class AppContainer extends LitElement {
       ${project.items.map((item, i) => {
         return html`
         <item-strip .item=${item}
+
             @change=${()=>{
               if (this.projectsManager.currentActiveItems?.length == 0) {
                 this.projectsManager.stop()
               }
               this.requestUpdate();
-              this.projectsManager.saveProjectsToLocalStorage()}}
-            @delete=${()=>{this.deleteItem(item)}} ?highlight=${i == this.highlightIndex}></item-strip>
+              this.projectsManager.currentProject!.updateDate = Date.now()
+              this.projectsManager.saveProjectsToLocalStorage()
+            }}
+
+            @delete=${()=>{
+              this.deleteItem(item)
+            }} ?highlight=${i == this.highlightIndex}></item-strip>
         `
       })}
       </div>
@@ -186,6 +192,7 @@ export class AppContainer extends LitElement {
           a: true
         })
         this.requestUpdate()
+        this.projectsManager.currentProject!.updateDate = Date.now()
         this.projectsManager.saveProjectsToLocalStorage()
       }
     }
@@ -197,6 +204,7 @@ export class AppContainer extends LitElement {
       this.projectsManager.stop()
     }
     this.requestUpdate()
+    this.projectsManager.currentProject!.updateDate = Date.now()
     this.projectsManager.saveProjectsToLocalStorage()
   }
 
