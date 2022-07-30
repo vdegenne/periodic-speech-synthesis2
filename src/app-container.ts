@@ -14,6 +14,7 @@ export class AppContainer extends LitElement {
 
   public projectsManager: ProjectsManager;
 
+  @query('#items') itemsBox!: HTMLDivElement;
   @queryAll('item-strip') itemStrips!: ItemStrip[];
   @query('item-strip[highlight]') highlightedStrip?: ItemStrip;
   @query('#controls [icon="volume_up"]') volumeUpButton?: Button;
@@ -40,6 +41,7 @@ export class AppContainer extends LitElement {
   }
   item-strip {
     margin: 0px;
+    flex:1;
   }
   item-strip[highlight] {
     background-color: #ffeb3b;
@@ -78,7 +80,7 @@ export class AppContainer extends LitElement {
     return html`
     <mwc-top-app-bar style="">
       ${this.interface == 'project' ? html`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>` : nothing}
-      <div slot="title">${this.projectsManager.currentProject?.name || 'Choose a project'}</div>
+      <div slot="title">${this.interface == 'project' ? `${this.projectsManager.currentProjectName} (${this.projectsManager.currentProject!.items.length})` : 'Choose a project'}</div>
       ${this.interface == 'project' && this.projectsManager.currentProject && this.projectsManager.currentActiveItems!.length > 0 || (this.interface == 'main' && this.projectsManager.isPlaying) ? this.projectsManager : nothing}
       <settings-dialog slot="actionItems"></settings-dialog>
       <mwc-icon-button slot="actionItems" icon="music_note"
@@ -92,9 +94,11 @@ export class AppContainer extends LitElement {
   }
 
   mainInterface () {
+    const sortedProjects = this.projectsManager.projects.sort((p1, p2) => p1.updateDate - p2.updateDate).reverse()
+
     return html`
     <mwc-button outlined icon="add" style="margin:12px 0 0 12px;" @click=${()=>{this.projectsManager.addNewProject()}}>new project</mwc-button>
-    ${this.projectsManager.projects.map((project, i) => {
+    ${sortedProjects.map((project, i) => {
       return html`
       <div class="project" @click=${()=>{this.navigateTo(project.name)}}>
         <div style="display:flex;align-items: center;flex:1">
@@ -129,31 +133,33 @@ export class AppContainer extends LitElement {
       <div id="items">
       ${project.items.map((item, i) => {
         return html`
-        <item-strip .item=${item}
+        <div class="item-strip-container" style="display:flex;align-items:center;justify-content:stretch">
+          <span style="color:grey">${i+1}.</span><item-strip .item=${item}
 
-            @change=${()=>{
-              if (this.projectsManager.currentActiveItems?.length == 0) {
-                this.projectsManager.stop()
-              }
-              this.requestUpdate();
-              this.projectsManager.currentProject!.updateDate = Date.now()
-              this.projectsManager.saveProjectsToLocalStorage()
-            }}
+              @change=${()=>{
+                if (this.projectsManager.currentActiveItems?.length == 0) {
+                  this.projectsManager.stop()
+                }
+                this.requestUpdate();
+                this.projectsManager.currentProject!.updateDate = Date.now()
+                this.projectsManager.saveProjectsToLocalStorage()
+              }}
 
-            @delete=${()=>{
-              this.deleteItem(item)
-            }} ?highlight=${i == this.highlightIndex}></item-strip>
+              @delete=${()=>{
+                this.deleteItem(item)
+              }} ?highlight=${i == this.highlightIndex}></item-strip>
+        </div>
         `
       })}
       </div>
     `
   }
 
-  // onVolumeUpButtonClick () {
-  //   if (this.highlightedStrip) {
-  //     this.highlightedStrip.playAudio()
-  //   }
-  // }
+  protected async updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): Promise<void> {
+    if (_changedProperties.has('interface') && this.interface == 'project') {
+      setTimeout(() => this.itemsBox.scrollTop = -9999999999999999999999, 100)
+    }
+  }
 
   async highlightItemFromValue (value: string) {
     const index = this.projectsManager.currentProject?.items.findIndex(i=>i.v===value)
@@ -166,7 +172,7 @@ export class AppContainer extends LitElement {
 
   scrollToHighlightedStrip () {
     if (this.highlightedStrip) {
-      this.shadowRoot!.querySelector('#items')!.scrollTop = this.highlightedStrip.offsetTop - 150
+      this.itemsBox.scrollTop = this.highlightedStrip.offsetTop - (this.itemsBox.offsetTop + 24)
     }
   }
 
@@ -180,7 +186,7 @@ export class AppContainer extends LitElement {
     window.location.hash = encodeURIComponent(projectName)
   }
 
-  addNewItem () {
+  async addNewItem () {
     const input = prompt('new item value')
     if (input) {
       if (this.projectsManager.currentProject?.items.find(i=>i.v===input)) {
@@ -193,6 +199,10 @@ export class AppContainer extends LitElement {
           a: true
         })
         this.requestUpdate()
+        if (!this.projectsManager.isPlaying) {
+          await this.updateComplete
+          this.highlightItemFromValue(input)
+        }
         this.projectsManager.currentProject!.updateDate = Date.now()
         this.projectsManager.saveProjectsToLocalStorage()
       }
