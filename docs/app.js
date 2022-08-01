@@ -1038,7 +1038,7 @@ let ri=class extends ni{};ri.styles=[So],ri=i([n("mwc-slider")],ri);var si=new R
         <mwc-icon-button icon="delete" style="--mdc-icon-button-size:24px;" @click=${t=>{t.stopPropagation(),this.projectsManager.deleteProject(e)}}></mwc-icon-button>
       </div>
       `))}
-    `}projectInterface(){const e=this.projectsManager.currentProject;return e?Y`
+    `}projectInterface(){const e=this.projectsManager.projects.find((e=>e.name==decodeURIComponent(window.location.hash.slice(1))));return e?Y`
       <div id="controls">
         <div style="flex:1">
           ${this.highlightIndex>=0?Y`

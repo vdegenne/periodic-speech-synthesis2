@@ -118,7 +118,7 @@ export class AppContainer extends LitElement {
   }
 
   projectInterface () {
-    const project = this.projectsManager.currentProject
+    const project = this.projectsManager.projects.find(p => p.name == decodeURIComponent(window.location.hash.slice(1)))
     if (!project) return nothing
 
     return html`
