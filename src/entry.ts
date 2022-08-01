@@ -12,6 +12,8 @@ import './project-manager'
 import './item-strip'
 import './settings-dialog'
 import './lofi-player'
+import './item-formatter'
+import './item-bottom-bar'
 import { AppContainer } from './app-container';
 import { LofiPlayer } from './lofi-player'
 

@@ -1,3 +1,4 @@
+import { isFullJapanese } from 'asian-regexps'
 import { getExactSearch } from 'japanese-data-module'
 import { speakJapanese } from './speech'
 
@@ -40,8 +41,13 @@ export function createAudioElementFromBlob(blob: Blob) {
 }
 
 
-export async function playJapaneseAudio(word: string) {
+export async function playJapaneseAudio(word: string, withSearch = true) {
   try {
+    if (withSearch == false) {
+      await playJapanese(word)
+      return
+    }
+    // with search
     let hiragana
     const search = getExactSearch(word)
     if (search && search[4]) {
@@ -73,4 +79,33 @@ export function googleImageSearch (word: string) {
 export function jisho(word: string) {
   // window.open(`https://jisho.org/search/${encodeURIComponent(word)}%20%23kanji`, '_blank')
   window.open(`https://jisho.org/search/${encodeURIComponent(word)}`, '_blank')
+}
+
+
+
+
+
+export async function playWord(word: string) {
+  if (!word) return
+
+  // Update the title
+  document.title = word
+
+  const parenthesisMatch = word.match(/\((.+)\)/)
+  if (parenthesisMatch) {
+    word = parenthesisMatch[1]
+  }
+
+  // Japanese
+  if (isFullJapanese(word)) {
+    if (parenthesisMatch) {
+      await playJapaneseAudio(word, false)
+    }
+    else {
+      await playJapaneseAudio(word, true)
+    }
+  }
+  else {
+    // @TODO another language
+  }
 }

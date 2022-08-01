@@ -1,11 +1,12 @@
 import { Button } from '@material/mwc-button';
-import { LitElement, html, css, nothing, PropertyValueMap } from 'lit'
+import { LitElement, html, css, nothing, PropertyValueMap, PropertyDeclaration } from 'lit'
 import { customElement, query, queryAll, state } from 'lit/decorators.js'
 import { ItemStrip } from './item-strip';
 import { ProjectsManager } from './project-manager';
 import { InterfaceType, Item, Project } from './types';
 import { googleImageSearch, jisho, playJapaneseAudio } from './util';
 import ms from 'ms';
+import { ItemBottomBar } from './item-bottom-bar';
 
 @customElement('app-container')
 export class AppContainer extends LitElement {
@@ -17,9 +18,7 @@ export class AppContainer extends LitElement {
   @query('#items') itemsBox!: HTMLDivElement;
   @queryAll('item-strip') itemStrips!: ItemStrip[];
   @query('item-strip[highlight]') highlightedStrip?: ItemStrip;
-  @query('#controls [icon="volume_up"]') volumeUpButton?: Button;
-  @query('#controls [icon="images"]') imagesButton?: Button;
-  @query('#controls #jishoButton') jishoButton?: Button;
+  @query('item-bottom-bar') itemBottomBar!: ItemBottomBar;
 
 
   static styles = css`
@@ -51,6 +50,13 @@ export class AppContainer extends LitElement {
     display: flex;
     align-items: center;
   }
+  item-bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 1.5em;
+  }
   `
 
   constructor () {
@@ -62,18 +68,6 @@ export class AppContainer extends LitElement {
   }
   bindEventListeners () {
     window.addEventListener('hashchange', () => this.interpretHash())
-
-    window.addEventListener('keydown', (e) => {
-      if (e.code == 'KeyA' && this.imagesButton) {
-        this.imagesButton.click()
-      }
-      if (e.code == 'KeyG' && this.jishoButton) {
-        this.jishoButton.click()
-      }
-      if (e.code == 'KeyS' && this.volumeUpButton) {
-        this.volumeUpButton.click()
-      }
-    })
 
     window.addEventListener('paste', (e) => {
       const paste = (e as ClipboardEvent).clipboardData!.getData('text')
@@ -90,9 +84,10 @@ export class AppContainer extends LitElement {
       <settings-dialog slot="actionItems"></settings-dialog>
       <mwc-icon-button slot="actionItems" icon="music_note"
         @click=${()=>{window.lofiPlayer.show()}}></mwc-icon-button>
-      <div style="max-width:800px;margin: 0 auto;display:flex;flex-direction: column;height:calc(100vh - 64px)">
+      <div style="max-width:800px;margin: 0 auto;display:flex;flex-direction: column;padding-bottom:100px; /*height:calc(100vh - 64px - 50px);*/">
         ${this.interface == 'main' ? this.mainInterface() : nothing }
         ${this.interface == 'project' ? this.projectInterface() : nothing }
+        <item-bottom-bar .app=${this}></item-bottom-bar>
       </div>
     </mwc-top-app-bar>
     `
@@ -124,13 +119,13 @@ export class AppContainer extends LitElement {
     return html`
       <div id="controls">
         <div style="flex:1">
-          ${this.highlightIndex >= 0 ? html`
-          <mwc-icon-button icon=volume_up @click=${()=>{this.highlightedStrip?.playAudio()}}></mwc-icon-button>
+          <!-- ${this.highlightIndex >= 0 ? html` -->
+          <!-- <mwc-icon-button icon=volume_up @click=${()=>{this.highlightedStrip?.playAudio()}}></mwc-icon-button>
           <mwc-icon-button icon=images @click=${()=>{googleImageSearch(this.highlightedStrip!.item.v)}}></mwc-icon-button>
           <mwc-icon-button id=jishoButton @click=${()=>{jisho(this.highlightedStrip!.item.v)}}>
             <img src="./img/jisho.ico" style="width:20px;height:20px">
-          </mwc-icon-button>
-          ` : nothing}
+          </mwc-icon-button> -->
+          <!-- ` : nothing} -->
         </div>
         <mwc-icon-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-icon-button>
         <mwc-button outlined slot="actionItems" icon="add" @click=${()=>{this.addNewItem()}}>item</mwc-button>
@@ -164,6 +159,11 @@ export class AppContainer extends LitElement {
     if (_changedProperties.has('interface') && this.interface == 'project') {
       setTimeout(() => this.itemsBox.scrollTop = -9999999999999999999999, 100)
     }
+  }
+
+  requestUpdate(name?: PropertyKey | undefined, oldValue?: unknown, options?: PropertyDeclaration<unknown, unknown> | undefined): void {
+    [...this.itemStrips].forEach(el => el.requestUpdate())
+    super.requestUpdate(name, oldValue, options)
   }
 
   async highlightItemFromValue (value: string) {

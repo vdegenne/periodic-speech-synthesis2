@@ -4,7 +4,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 import { AppContainer } from './app-container'
 import { Item, Project } from './types'
 import { isFullJapanese } from 'asian-regexps';
-import { playJapaneseAudio, sleep } from './util';
+import { playJapaneseAudio, playWord, sleep } from './util';
 
 @customElement('projects-manager')
 export class ProjectsManager extends LitElement {
@@ -16,7 +16,6 @@ export class ProjectsManager extends LitElement {
   @state() repeatCount = 2;
   @property({type: Boolean, reflect: true}) private playing = false
   private _historyList: Item[] = [];
-  @state() currentWord?: string;
 
   @query('mwc-dialog') dialog!: Dialog;
 
@@ -163,9 +162,9 @@ export class ProjectsManager extends LitElement {
       let item = await this.pickRandomItem()
       if (item) {
         if (this.isCurrentViewCurrentProject) {
-          this.app.highlightItemFromValue(item.v)
+          // this.app.highlightItemFromValue(item.v)
         }
-        // this.currentWord = word
+        this.app.itemBottomBar.item = item
         this._historyList.push(item)
         for (let i = 0; i < this.repeatCount; ++i) {
           if (!this.playing) { return }
@@ -173,7 +172,7 @@ export class ProjectsManager extends LitElement {
             await sleep(3000)
           }
           if (!this.playing) { return }
-          await this.playWord(item.v)
+          await playWord(item.v)
         }
       }
       else {
@@ -207,14 +206,6 @@ export class ProjectsManager extends LitElement {
   }
 
 
-  async playWord(word: string) {
-    if (word && isFullJapanese(word)) {
-      document.title = word
-      await playJapaneseAudio(word)
-    }
-    // await this.updateComplete
-    // this.selectLineFromWord(word)
-  }
 
   /** Data related */
   getProjectsFromLocalStorage () {
