@@ -74,6 +74,11 @@ export class AppContainer extends LitElement {
         this.volumeUpButton.click()
       }
     })
+
+    window.addEventListener('paste', (e) => {
+      const paste = (e as ClipboardEvent).clipboardData!.getData('text')
+      this.addNewItem(paste)
+    })
   }
 
   render () {
@@ -186,8 +191,10 @@ export class AppContainer extends LitElement {
     window.location.hash = encodeURIComponent(projectName)
   }
 
-  async addNewItem () {
-    const input = prompt('new item value')
+  async addNewItem (input?: string|null) {
+    if (!input) {
+      input = prompt('new item value')
+    }
     if (input) {
       if (this.projectsManager.currentProject?.items.find(i=>i.v===input)) {
         window.toast('This item already exists')
