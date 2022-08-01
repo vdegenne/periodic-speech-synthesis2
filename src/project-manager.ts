@@ -118,6 +118,13 @@ export class ProjectsManager extends LitElement {
     }
   }
 
+  updateCurrentProjectNameFromHash () {
+    this.currentProjectName = decodeURIComponent(window.location.hash.slice(1))
+  }
+  get isCurrentViewCurrentProject () {
+    return this.currentProjectName == decodeURIComponent(window.location.hash.slice(1))
+  }
+
 
   toggleStart() {
     if (this.playing) {
@@ -128,7 +135,7 @@ export class ProjectsManager extends LitElement {
       if (this.dialog.open) {
         this.dialog.close()
         if (!window.location.hash) { return }
-        // this.currentProjectName = window.location.hash.slice(1)!
+        this.updateCurrentProjectNameFromHash()
         this.playing = true
         this.runTimeout(true)
       }
@@ -155,7 +162,9 @@ export class ProjectsManager extends LitElement {
       if (!this.playing) { return }
       let item = await this.pickRandomItem()
       if (item) {
-        this.app.highlightItemFromValue(item.v)
+        if (this.isCurrentViewCurrentProject) {
+          this.app.highlightItemFromValue(item.v)
+        }
         // this.currentWord = word
         this._historyList.push(item)
         for (let i = 0; i < this.repeatCount; ++i) {

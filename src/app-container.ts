@@ -232,7 +232,9 @@ export class AppContainer extends LitElement {
     const projectName = decodeURIComponent(window.location.hash.slice(1))
     if (this.projectsManager.projectExists(projectName)) {
       this.interface = 'project'
-      this.projectsManager.currentProjectName = projectName
+      if (this.projectsManager.currentProjectName == undefined) {
+        this.projectsManager.updateCurrentProjectNameFromHash()
+      }
     }
     else {
       this.interface = 'main'
