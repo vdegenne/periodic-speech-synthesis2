@@ -96,8 +96,6 @@ export class ItemsPlayer extends LitElement {
     else {
       if (this.dialog.open) {
         this.dialog.close()
-        if (!window.location.hash) { return }
-        // this.updateCurrentProjectNameFromHash()
         this.playing = true
         this.runTimeout(true)
       }
