@@ -34,15 +34,9 @@ export class ProjectsManager {
     return this.projects.find(p => p.items.indexOf(item) >= 0)
   }
 
-
-  // public currentProjectName?: string;
-
-  // get currentProject () {
-  //   if (!this.currentProjectName) return undefined;
-  //   return this.projects.find(p=>p.name === this.currentProjectName)
-  // }
-  // get currentActiveItems () { return this.currentProject?.items.filter(i=>i.a) }
-  // get isPlaying() { return this.playing }
+  getProjectsFromItemValue (value: string) {
+    return this.projects.filter(p=>p.items.some(i=>i.v==value))
+  }
 
 
   deleteProject(project: Project) {

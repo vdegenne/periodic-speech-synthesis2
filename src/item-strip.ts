@@ -3,7 +3,7 @@ import { css, html, LitElement } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { sharedStyles } from './styles/sharedStyles';
 import { Item } from './types';
-import { playJapaneseAudio, playWord } from './util';
+import { jisho, playJapaneseAudio, playWord } from './util';
 
 @customElement('item-strip')
 export class ItemStrip extends LitElement {
@@ -56,6 +56,7 @@ export class ItemStrip extends LitElement {
         <item-formatter value=${this.item.v} id=text></item-formatter>
         <!-- <span style="flex:1" id=text jp>${this.item.v}${exactSearch ? `(${exactSearch[4]})` : ''}</span> -->
         <mwc-icon-button icon="volume_up" @click=${()=>{this.playWord()}}></mwc-icon-button>
+        <mwc-icon-button @click=${()=>{jisho(this.item.v.replace(/\((.+)\)/g, ''))}}><img src="./img/jisho.ico"></mwc-icon-button>
         <mwc-icon-button icon="remove_red_eyes" @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
         <mwc-icon-button icon="edit" @click=${()=>{window.toast('yet to come')}}></mwc-icon-button>
         <mwc-icon-button icon="delete" @click=${()=>{this.onDeleteIconClick()}}></mwc-icon-button>

@@ -27,9 +27,23 @@
     <script>
       window.toast = function (labelText, timeoutMs = 4000) {
         snackbar.labelText = labelText;
-        snackbar.timeoutMs = timeoutMs;
-        snackbar.open = true;
+        if (timeoutMs >= 4000 || timeoutMs === -1) {
+          snackbar.timeoutMs = timeoutMs;
+          snackbar.open = true;
+        }
+        else {
+          snackbar.timeoutMs = -1;
+          snackbar.open = true;
+          setTimeout(function () {
+            snackbar.close()
+          }, timeoutMs)
+        }
       }
+
+      window.addEventListener('load', async () => {
+        await this.snackbar.updateComplete;
+        this.snackbar.shadowRoot.querySelector('.mdc-snackbar').style.bottom = '62px'
+      })
     </script>
   </body>
 </html>

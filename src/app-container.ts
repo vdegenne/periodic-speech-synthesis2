@@ -92,7 +92,8 @@ export class AppContainer extends LitElement {
   render () {
     return html`
     <mwc-top-app-bar>
-      ${this.interface == 'project' ? html`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>` : nothing}
+      <mwc-icon-button slot="navigationIcon" ?disabled=${this.interface == 'main'} @click=${()=>{this.removeHashFromUrl()}}><img src="./favicon.ico" width=24></mwc-icon-button>
+      <!-- ${this.interface == 'project' ? html`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>` : nothing} -->
       <div slot="title">${this.interface == 'project' ? `${this.activeProject!.name} (${this.activeProject!.items.length})` : 'Choose a project'}</div>
       <items-player slot="actionItems" .app=${this} @initiate-start=${()=>{this.onItemsPlayerInitiateStart()}}></items-player>
       <settings-dialog slot="actionItems"></settings-dialog>
@@ -220,11 +221,16 @@ export class AppContainer extends LitElement {
         return
       }
       else {
+        const relatedProjects = this.projectsManager.getProjectsFromItemValue(input)
+        if (relatedProjects.length) {
+          window.toast(`also in : ${relatedProjects.map(p=>p.name).join(', ')}`, 6000)
+        }
         this.activeProject!.items.push({
           v: input,
           a: true
         })
         this.requestUpdate()
+
         // if (!this.itemsPlayer.isPlaying) {
         //   await this.updateComplete
         //   this.highlightItemFromValue(input)
