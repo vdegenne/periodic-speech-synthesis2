@@ -7,18 +7,30 @@ import { InterfaceType, Item, Project } from './types';
 import { googleImageSearch, jisho, playJapaneseAudio } from './util';
 import ms from 'ms';
 import { ItemBottomBar } from './item-bottom-bar';
+import { ItemsPlayer } from './items-player';
 
 @customElement('app-container')
 export class AppContainer extends LitElement {
   @state() interface: InterfaceType = 'main';
+  @state() activeProject?: Project;
   @state() highlightIndex = -1
 
-  public projectsManager: ProjectsManager;
+  public projectsManager: ProjectsManager = new ProjectsManager(this);
 
   @query('#items') itemsBox!: HTMLDivElement;
   @queryAll('item-strip') itemStrips!: ItemStrip[];
   @query('item-strip[highlight]') highlightedStrip?: ItemStrip;
   @query('item-bottom-bar') itemBottomBar!: ItemBottomBar;
+  @query('items-player') itemsPlayer!: ItemsPlayer;
+
+  getProjectNameFromHash() { return decodeURIComponent(window.location.hash.slice(1)) }
+  // get currentProject () {
+  //   const title = decodeURIComponent(window.location.hash.slice(1))
+  //   if (title) {
+  //     return this.projectsManager.getProjectFromTitle(title)
+  //   }
+  //   else { return undefined }
+  // }
 
 
   static styles = css`
@@ -26,7 +38,7 @@ export class AppContainer extends LitElement {
     display: flex;
     align-items: center;
     padding: 4px;
-    margin: 10px;
+    margin: 4px;
     cursor: pointer;
   }
   .project > div > mwc-icon {
@@ -57,13 +69,15 @@ export class AppContainer extends LitElement {
     right: 0;
     font-size: 1.5em;
   }
+  mwc-top-app-bar > :not(items-player)[slot=actionItems] {
+    margin: 0 0 0 4px;
+  }
   `
 
   constructor () {
     super()
     this.bindEventListeners()
-    this.projectsManager = new ProjectsManager(this)
-    this.projectsManager.setAttribute('slot', 'actionItems')
+    // this.projectsManager.setAttribute('slot', 'actionItems')
     this.interpretHash()
   }
   bindEventListeners () {
@@ -77,13 +91,12 @@ export class AppContainer extends LitElement {
 
   render () {
     return html`
-    <mwc-top-app-bar style="">
+    <mwc-top-app-bar>
       ${this.interface == 'project' ? html`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>` : nothing}
-      <div slot="title">${this.interface == 'project' ? `${this.projectsManager.currentProjectName} (${this.projectsManager.currentProject!.items.length})` : 'Choose a project'}</div>
-      ${this.interface == 'project' && this.projectsManager.currentProject && this.projectsManager.currentActiveItems!.length > 0 || (this.interface == 'main' && this.projectsManager.isPlaying) ? this.projectsManager : nothing}
+      <div slot="title">${this.interface == 'project' ? `${this.activeProject!.name} (${this.activeProject!.items.length})` : 'Choose a project'}</div>
+      <items-player slot="actionItems" .app=${this} @initiate-start=${()=>{this.onItemsPlayerInitiateStart()}}></items-player>
       <settings-dialog slot="actionItems"></settings-dialog>
-      <mwc-icon-button slot="actionItems" icon="music_note"
-        @click=${()=>{window.lofiPlayer.show()}}></mwc-icon-button>
+      <!-- <mwc-icon-button slot="actionItems" icon="music_note" @click=${()=>{window.lofiPlayer.show()}}></mwc-icon-button> -->
       <div style="max-width:800px;margin: 0 auto;display:flex;flex-direction: column;padding-bottom:100px; /*height:calc(100vh - 64px - 50px);*/">
         ${this.interface == 'main' ? this.mainInterface() : nothing }
         ${this.interface == 'project' ? this.projectInterface() : nothing }
@@ -105,7 +118,8 @@ export class AppContainer extends LitElement {
           <mwc-icon>folder</mwc-icon>
           <span>${project.name} <span style="color:#bdbdbd">(${ms(Date.now() - project.updateDate)} ago)</span></span>
         </div>
-        <mwc-icon-button icon="delete" style="--mdc-icon-button-size:24px;" @click=${(e)=>{e.stopPropagation();this.projectsManager.deleteProject(project)}}></mwc-icon-button>
+        <mwc-icon-button icon="edit" style="--mdc-icon-button-size:36px;" @click=${(e)=>{e.stopPropagation();this.projectsManager.renameProject(project)}}></mwc-icon-button>
+        <mwc-icon-button icon="delete" style="--mdc-icon-button-size:36px;" @click=${(e)=>{e.stopPropagation();this.projectsManager.deleteProject(project)}}></mwc-icon-button>
       </div>
       `
     })}
@@ -118,36 +132,28 @@ export class AppContainer extends LitElement {
 
     return html`
       <div id="controls">
-        <div style="flex:1">
-          <!-- ${this.highlightIndex >= 0 ? html` -->
-          <!-- <mwc-icon-button icon=volume_up @click=${()=>{this.highlightedStrip?.playAudio()}}></mwc-icon-button>
-          <mwc-icon-button icon=images @click=${()=>{googleImageSearch(this.highlightedStrip!.item.v)}}></mwc-icon-button>
-          <mwc-icon-button id=jishoButton @click=${()=>{jisho(this.highlightedStrip!.item.v)}}>
-            <img src="./img/jisho.ico" style="width:20px;height:20px">
-          </mwc-icon-button> -->
-          <!-- ` : nothing} -->
-        </div>
-        <mwc-icon-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-icon-button>
+        <!-- <mwc-icon-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-icon-button> -->
         <mwc-button outlined slot="actionItems" icon="add" @click=${()=>{this.addNewItem()}}>item</mwc-button>
       </div>
       <div id="items">
       ${project.items.map((item, i) => {
         return html`
         <div class="item-strip-container" style="display:flex;align-items:center;justify-content:stretch">
-          <span style="color:grey">${i+1}.</span><item-strip .item=${item}
+          <!--<span style="color:grey">${i+1}.</span>--><item-strip .item=${item}
+              ?highlight=${i == this.highlightIndex}
 
-              @change=${()=>{
-                if (this.projectsManager.currentActiveItems?.length == 0) {
-                  this.projectsManager.stop()
-                }
-                this.requestUpdate();
-                this.projectsManager.currentProject!.updateDate = Date.now()
+              @activeToggle=${()=>{
+                // this.requestUpdate();
+                this.activeProject!.updateDate = Date.now()
                 this.projectsManager.saveProjectsToLocalStorage()
               }}
 
               @delete=${()=>{
-                this.deleteItem(item)
-              }} ?highlight=${i == this.highlightIndex}></item-strip>
+                this.projectsManager.deleteItem(item)
+                this.requestUpdate()
+              }}
+
+              ></item-strip>
         </div>
         `
       })}
@@ -166,14 +172,27 @@ export class AppContainer extends LitElement {
     super.requestUpdate(name, oldValue, options)
   }
 
-  async highlightItemFromValue (value: string) {
-    const index = this.projectsManager.currentProject?.items.findIndex(i=>i.v===value)
-    if (index !== undefined && index >= 0) {
-      this.highlightIndex = index
-      await this.updateComplete
-      this.scrollToHighlightedStrip()
+  private onItemsPlayerInitiateStart () {
+    if (!this.itemsPlayer.isPlaying) {
+      if (this.interface == 'main') {
+        this.itemsPlayer.projectName = 'all projects'
+        this.itemsPlayer.refill(this.projectsManager.projects.map(p=>p.items).flat())
+      }
+      else {
+        this.itemsPlayer.projectName = this.activeProject!.name
+        this.itemsPlayer.refill(this.activeProject!.items)
+      }
     }
   }
+
+  // async highlightItemFromValue (value: string) {
+  //   const index = this.projectsManager.currentProject?.items.findIndex(i=>i.v===value)
+  //   if (index !== undefined && index >= 0) {
+  //     this.highlightIndex = index
+  //     await this.updateComplete
+  //     this.scrollToHighlightedStrip()
+  //   }
+  // }
 
   scrollToHighlightedStrip () {
     if (this.highlightedStrip) {
@@ -182,9 +201,9 @@ export class AppContainer extends LitElement {
   }
 
   async onCasinoButtonClick () {
-    this.highlightIndex = ~~(Math.random() * this.projectsManager.currentProject!.items.length)
-    await this.updateComplete
-    this.scrollToHighlightedStrip()
+    // this.highlightIndex = ~~(Math.random() * this.projectsManager.currentProject!.items.length)
+    // await this.updateComplete
+    // this.scrollToHighlightedStrip()
   }
 
   navigateTo (projectName: string) {
@@ -196,45 +215,35 @@ export class AppContainer extends LitElement {
       input = prompt('new item value')
     }
     if (input) {
-      if (this.projectsManager.currentProject?.items.find(i=>i.v===input)) {
+      if (this.activeProject!.items.find(i=>i.v===input)) {
         window.toast('This item already exists')
         return
       }
       else {
-        this.projectsManager.currentProject?.items.push({
+        this.activeProject!.items.push({
           v: input,
           a: true
         })
         this.requestUpdate()
-        if (!this.projectsManager.isPlaying) {
-          await this.updateComplete
-          this.highlightItemFromValue(input)
-        }
-        this.projectsManager.currentProject!.updateDate = Date.now()
+        // if (!this.itemsPlayer.isPlaying) {
+        //   await this.updateComplete
+        //   this.highlightItemFromValue(input)
+        // }
+        this.activeProject!.updateDate = Date.now()
         this.projectsManager.saveProjectsToLocalStorage()
       }
     }
   }
 
-  deleteItem (item: Item) {
-    this.projectsManager.currentProject?.items.splice(this.projectsManager.currentProject.items.indexOf(item), 1);
-    if (this.projectsManager.currentProject?.items.length == 0) {
-      this.projectsManager.stop()
-    }
-    this.requestUpdate()
-    this.projectsManager.currentProject!.updateDate = Date.now()
-    this.projectsManager.saveProjectsToLocalStorage()
-  }
-
-
   /** Hash related */
   interpretHash () {
-    const projectName = decodeURIComponent(window.location.hash.slice(1))
+    const projectName = this.getProjectNameFromHash()
     if (this.projectsManager.projectExists(projectName)) {
       this.interface = 'project'
-      if (this.projectsManager.currentProjectName == undefined) {
-        this.projectsManager.updateCurrentProjectNameFromHash()
-      }
+      this.activeProject = this.projectsManager.getProjectFromTitle(projectName)
+      // if (this.projectsManager.currentProjectName == undefined) {
+      //   // this.projectsManager.updateCurrentProjectNameFromHash()
+      // }
     }
     else {
       this.interface = 'main'

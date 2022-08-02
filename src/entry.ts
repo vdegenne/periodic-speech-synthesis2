@@ -4,6 +4,7 @@ import '@material/mwc-button'
 import '@material/mwc-icon-button'
 import '@material/mwc-dialog'
 import '@material/mwc-textfield'
+import '@material/mwc-formfield'
 import '@material/mwc-checkbox'
 import '@material/mwc-slider'
 
@@ -14,6 +15,7 @@ import './settings-dialog'
 import './lofi-player'
 import './item-formatter'
 import './item-bottom-bar'
+import './items-player'
 import { AppContainer } from './app-container';
 import { LofiPlayer } from './lofi-player'
 

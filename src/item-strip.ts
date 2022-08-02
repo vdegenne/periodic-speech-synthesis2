@@ -3,7 +3,7 @@ import { css, html, LitElement } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { sharedStyles } from './styles/sharedStyles';
 import { Item } from './types';
-import { playJapaneseAudio } from './util';
+import { playJapaneseAudio, playWord } from './util';
 
 @customElement('item-strip')
 export class ItemStrip extends LitElement {
@@ -40,6 +40,7 @@ export class ItemStrip extends LitElement {
   }
 
   #text {
+    flex: 1;
     font-size: 1.5em;
     position: relative;
     top: -2px;
@@ -52,29 +53,22 @@ export class ItemStrip extends LitElement {
 
     return html`
       <div style="display: flex;align-items: center;flex:1">
-        <span style="flex:1" id=text jp>${this.item.v}${exactSearch ? `(${exactSearch[4]})` : ''}</span>
-        <mwc-icon-button icon="remove_red_eyes"
-          @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
-        <mwc-icon-button icon="edit"></mwc-icon-button>
+        <item-formatter value=${this.item.v} id=text></item-formatter>
+        <!-- <span style="flex:1" id=text jp>${this.item.v}${exactSearch ? `(${exactSearch[4]})` : ''}</span> -->
+        <mwc-icon-button icon="volume_up" @click=${()=>{this.playWord()}}></mwc-icon-button>
+        <mwc-icon-button icon="remove_red_eyes" @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
+        <mwc-icon-button icon="edit" @click=${()=>{window.toast('yet to come')}}></mwc-icon-button>
         <mwc-icon-button icon="delete" @click=${()=>{this.onDeleteIconClick()}}></mwc-icon-button>
       </div>
     `
   }
 
-  playAudio () {
-    const hiraganaMatch = this.textPart.match(/\((.+)\)/)
-    if (hiraganaMatch) {
-      playJapaneseAudio(hiraganaMatch[1])
-    }
-    else {
-      playJapaneseAudio(this.item.v)
-    }
-  }
+  playWord () { playWord(this.item.v) }
 
   onEyeIconClick() {
     this.item.a = !this.item.a
     this.requestUpdate()
-    this.fireChange()
+    this.dispatchEvent(new CustomEvent('activeToggle'))
   }
 
   onDeleteIconClick () {
@@ -82,11 +76,5 @@ export class ItemStrip extends LitElement {
     if (accept) {
       this.dispatchEvent(new CustomEvent('delete'))
     }
-  }
-
-  fireChange () {
-    this.dispatchEvent(new CustomEvent('change', {
-      detail: {}
-    }))
   }
 }

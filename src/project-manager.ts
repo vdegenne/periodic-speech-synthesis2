@@ -3,24 +3,16 @@ import { css, html, LitElement, PropertyValueMap } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { AppContainer } from './app-container'
 import { Item, Project } from './types'
-import { isFullJapanese } from 'asian-regexps';
-import { playJapaneseAudio, playWord, sleep } from './util';
+import copyToClipboard from '@vdegenne/clipboard-copy';
 
-@customElement('projects-manager')
-export class ProjectsManager extends LitElement {
+export class ProjectsManager {
   private app: AppContainer;
   public projects: Project[] = this.getProjectsFromLocalStorage() || [];
 
-  private _timeout?: NodeJS.Timeout;
-  @state() pauseTimeS = 60;
-  @state() repeatCount = 2;
-  @property({type: Boolean, reflect: true}) private playing = false
-  private _historyList: Item[] = [];
 
-  @query('mwc-dialog') dialog!: Dialog;
+  // @query('mwc-dialog') dialog!: Dialog;
 
   constructor (app: AppContainer) {
-    super()
     this.projects = this.getProjectsFromLocalStorage() || []
     // if (this.projects == null) {
     //   this.getProjectsFromRemote().then(data => {
@@ -30,68 +22,49 @@ export class ProjectsManager extends LitElement {
     this.app = app
   }
 
-  public currentProjectName?: string;
-
-  get currentProject () {
-    if (!this.currentProjectName) return undefined;
-    return this.projects.find(p=>p.name === this.currentProjectName)
-  }
-  get currentActiveItems () { return this.currentProject?.items.filter(i=>i.a) }
-  get isPlaying() { return this.playing }
-
-
-  static styles = css`
-  #playButton {
-    --mdc-theme-primary: green;
-  }
-  :host([playing]) #playButton {
-    --mdc-theme-primary: red;
-  }
-  `
-
-  render() {
-    return html`
-    <mwc-button id="playButton" raised icon="${this.playing ? 'stop' : 'play_arrow'}" @click=${()=>{this.toggleStart()}}>${this.playing ? 'stop' : 'play'}</mwc-button>
-    <mwc-dialog style="--mdc-dialog-min-width:calc(100vw - 24px)"
-        @opened=${e => { this.shadowRoot!.querySelectorAll('mwc-slider').forEach(el => el.layout()) }}>
-      <p>pause between (seconds)</p>
-      <mwc-slider
-        discrete
-        withTickMarks
-        min=0
-        max=100
-        step=5
-        value=${this.pauseTimeS}
-        @change=${e => { this.pauseTimeS = e.detail.value }}
-      ></mwc-slider>
-      <p>how many times</p>
-      <mwc-slider
-        discrete
-        withTickMarks
-        min=1
-        max=10
-        value=${this.repeatCount}
-        @change=${e => { this.repeatCount = e.detail.value }}
-      ></mwc-slider>
-      <mwc-button unelevated slot=primaryAction
-        @click=${() => { this.toggleStart() }}>start</mwc-button>
-    </mwc-dialog>
-    `
-  }
-
   projectExists (projectName: string): boolean {
     return this.projects.some(p=> p.name === projectName)
   }
+
+  getProjectFromTitle (title: string) {
+    return this.projects.find(p=>p.name==title)
+  }
+
+  getProjectFromItem (item: Item) {
+    return this.projects.find(p => p.items.indexOf(item) >= 0)
+  }
+
+
+  // public currentProjectName?: string;
+
+  // get currentProject () {
+  //   if (!this.currentProjectName) return undefined;
+  //   return this.projects.find(p=>p.name === this.currentProjectName)
+  // }
+  // get currentActiveItems () { return this.currentProject?.items.filter(i=>i.a) }
+  // get isPlaying() { return this.playing }
+
 
   deleteProject(project: Project) {
     const accept = confirm(`Are you sure to delete "${project.name}" ?`)
     if (accept) {
       // Stop playing if we delete the project that is currently playing
-      if (project === this.currentProject && this.playing) {
-        this.toggleStart()
+      if (project.name === this.app.itemsPlayer.projectName) {
+        this.app.itemsPlayer.stop()
       }
       // Remove the project from the list
       this.projects.splice(this.projects.indexOf(project), 1)
+      this.app.requestUpdate()
+      this.saveProjectsToLocalStorage()
+    }
+  }
+
+  renameProject (project: Project) {
+    const newName = prompt('New name', project.name)
+    if (newName) {
+      if (newName == project.name) { return }
+
+      project.name = newName
       this.app.requestUpdate()
       this.saveProjectsToLocalStorage()
     }
@@ -117,95 +90,21 @@ export class ProjectsManager extends LitElement {
     }
   }
 
-  updateCurrentProjectNameFromHash () {
-    this.currentProjectName = decodeURIComponent(window.location.hash.slice(1))
-  }
-  get isCurrentViewCurrentProject () {
-    return this.currentProjectName == decodeURIComponent(window.location.hash.slice(1))
-  }
-
-
-  toggleStart() {
-    if (this.playing) {
-      this.clearTimeout()
-      this.playing = false
-    }
-    else {
-      if (this.dialog.open) {
-        this.dialog.close()
-        if (!window.location.hash) { return }
-        this.updateCurrentProjectNameFromHash()
-        this.playing = true
-        this.runTimeout(true)
-      }
-      else {
-        this.dialog.show()
-      }
-      // this.running = true
-    }
-    this.app.requestUpdate()
-  }
-
-  stop() {
-    if (this.playing) {
-      this.toggleStart()
+  deleteItem (item: Item) {
+    const project = this.getProjectFromItem(item)
+    if (project) {
+      project.items.splice(project.items.indexOf(item), 1);
+      project.updateDate = Date.now()
+      this.saveProjectsToLocalStorage()
     }
   }
 
-  runTimeout(prerun = false) {
-    if (!this.playing) { return }
-
-    this.clearTimeout()
-
-    this._timeout = setTimeout(async () => {
-      if (!this.playing) { return }
-      let item = await this.pickRandomItem()
-      if (item) {
-        if (this.isCurrentViewCurrentProject) {
-          // this.app.highlightItemFromValue(item.v)
-        }
-        this.app.itemBottomBar.item = item
-        this._historyList.push(item)
-        for (let i = 0; i < this.repeatCount; ++i) {
-          if (!this.playing) { return }
-          if (i !== 0) {
-            await sleep(3000)
-          }
-          if (!this.playing) { return }
-          await playWord(item.v)
-        }
-      }
-      else {
-        // If the item is null, that means there is no active items to select
-        // We stop everything
-        this.stop()
-        return
-      }
-      if (this.playing) {
-        this.runTimeout()
-      }
-    }, prerun ? 0 : this.pauseTimeS * 1000)
-  }
-
-  pickRandomItem() {
-    // Filter the items
-    let candidates = this.currentActiveItems!.filter(item => !this._historyList.includes(item))
-    if (candidates.length == 0) {
-      this._historyList = []
-      candidates = this.currentActiveItems!
-      if (candidates.length == 0) { return null }
-    }
-    return candidates[~~(Math.random() * candidates.length)]
-  }
-
-  clearTimeout() {
-    if (this._timeout) {
-      clearTimeout(this._timeout)
-      this._timeout = undefined
-    }
-  }
-
-
+  // updateCurrentProjectNameFromHash () {
+  //   this.currentProjectName = decodeURIComponent(window.location.hash.slice(1))
+  // }
+  // get isCurrentViewCurrentProject () {
+  //   return this.currentProjectName == decodeURIComponent(window.location.hash.slice(1))
+  // }
 
   /** Data related */
   getProjectsFromLocalStorage () {
@@ -235,5 +134,10 @@ export class ProjectsManager extends LitElement {
   async loadProjectsFromRemote () {
     this.projects = await this.getProjectsFromRemote()
     this.app.requestUpdate()
+  }
+
+
+  copyDataToClipboard () {
+    copyToClipboard(JSON.stringify(this.projects))
   }
 }
