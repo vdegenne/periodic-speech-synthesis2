@@ -63,7 +63,7 @@ export class ItemStrip extends LitElement {
         <mwc-icon-button icon="volume_up" @click=${()=>{this.playWord()}}></mwc-icon-button>
         <mwc-icon-button @click=${()=>{jisho(this.item.v.replace(/\((.+)\)/g, ''))}}><img src="./img/jisho.ico"></mwc-icon-button>
         <mwc-icon-button icon="remove_red_eyes" @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
-        <mwc-icon-button icon="edit" @click=${()=>{window.toast('yet to come')}}></mwc-icon-button>
+        <mwc-icon-button icon="edit" @click=${()=>{this.dispatchEvent(new CustomEvent('edit'))}}></mwc-icon-button>
         <mwc-icon-button icon="delete" @click=${()=>{this.onDeleteIconClick()}}></mwc-icon-button>
       </div>
     `

@@ -1134,6 +1134,8 @@ const bi=S`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
 
               @delete=${()=>{this.projectsManager.deleteItem(e),this.requestUpdate()}}
 
+              @edit=${()=>{const t=prompt("new value",e.v);t&&(e.v=t,this.requestUpdate(),this.projectsManager.saveProjectsToLocalStorage())}}
+
               ></item-strip>
         </div>
         `))}
@@ -1191,7 +1193,7 @@ const bi=S`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
         <mwc-icon-button icon="volume_up" @click=${()=>{this.playWord()}}></mwc-icon-button>
         <mwc-icon-button @click=${()=>{Vi(this.item.v.replace(/\((.+)\)/g,""))}}><img src="./img/jisho.ico"></mwc-icon-button>
         <mwc-icon-button icon="remove_red_eyes" @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
-        <mwc-icon-button icon="edit" @click=${()=>{window.toast("yet to come")}}></mwc-icon-button>
+        <mwc-icon-button icon="edit" @click=${()=>{this.dispatchEvent(new CustomEvent("edit"))}}></mwc-icon-button>
         <mwc-icon-button icon="delete" @click=${()=>{this.onDeleteIconClick()}}></mwc-icon-button>
       </div>
     `}playWord(){Ui(this.item.v)}onEyeIconClick(){this.item.a=!this.item.a,this.requestUpdate(),this.dispatchEvent(new CustomEvent("activeToggle"))}onDeleteIconClick(){confirm("are you sure to delete this item")&&this.dispatchEvent(new CustomEvent("delete"))}};Ji.styles=[Li,S`

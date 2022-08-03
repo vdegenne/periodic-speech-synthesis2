@@ -172,6 +172,15 @@ export class AppContainer extends LitElement {
                 this.requestUpdate()
               }}
 
+              @edit=${()=>{
+                const newValue = prompt('new value', item.v)
+                if (newValue) {
+                  item.v = newValue
+                  this.requestUpdate()
+                  this.projectsManager.saveProjectsToLocalStorage()
+                }
+              }}
+
               ></item-strip>
         </div>
         `
