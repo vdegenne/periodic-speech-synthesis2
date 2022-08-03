@@ -37,6 +37,7 @@
     "browser-sync": "browser-sync start --proxy http://localhost:%port%/ --files docs/app.js --no-notify"
   },
   "dependencies": {
+    "build": "^0.1.4",
     "koa": "^2.13.4",
     "koa-body": "^4.2.0",
     "koa-router": "^10.1.1",

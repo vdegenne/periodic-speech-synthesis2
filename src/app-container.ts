@@ -86,7 +86,7 @@ export class AppContainer extends LitElement {
     window.addEventListener('hashchange', () => this.interpretHash())
 
     window.addEventListener('paste', (e) => {
-      const paste = (e as ClipboardEvent).clipboardData!.getData('text')
+      const paste = (e as ClipboardEvent).clipboardData!.getData('text').trim()
       this.addNewItem(paste)
     })
   }
