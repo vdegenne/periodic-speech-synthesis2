@@ -12,6 +12,8 @@ export const icons = [
   {name: 'smart_display', color: 'red'},
   {name: 'music_note', color: 'blue'},
   {name: 'feed', color: 'grey'},
+  {name: 'reorder', color: 'black'},
+  {name: 'star', color: 'yellow'},
 ]
 
 @customElement('project-edit-dialog')

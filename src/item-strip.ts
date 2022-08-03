@@ -1,5 +1,5 @@
 import { getExactSearch } from 'japanese-data-module';
-import { css, html, LitElement } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { sharedStyles } from './styles/sharedStyles';
 import { Item } from './types';
@@ -40,7 +40,6 @@ export class ItemStrip extends LitElement {
   }
 
   #text {
-    flex: 1;
     font-size: 1.5em;
     position: relative;
     top: -2px;
@@ -50,10 +49,16 @@ export class ItemStrip extends LitElement {
   render() {
     this[this.item.a ? 'setAttribute' : 'removeAttribute']('active', '')
     const exactSearch = getExactSearch(this.item.v)
+    const project = window.app.projectsManager.getProjectFromItem(this.item)
+    const otherProjects = window.app.projectsManager.getProjectsFromItemValue(this.item.v).filter(p => p !== project)
+
 
     return html`
       <div style="display: flex;align-items: center;flex:1">
-        <item-formatter value=${this.item.v} id=text></item-formatter>
+        <div style="flex:1">
+          <item-formatter value=${this.item.v} id=text></item-formatter>
+          ${otherProjects.length ? html`<mwc-icon style="color:grey;cursor:default" title="${otherProjects.map(p=>p.name).join('\n')}">workspaces</mwc-icon>` : nothing}
+        </div>
         <!-- <span style="flex:1" id=text jp>${this.item.v}${exactSearch ? `(${exactSearch[4]})` : ''}</span> -->
         <mwc-icon-button icon="volume_up" @click=${()=>{this.playWord()}}></mwc-icon-button>
         <mwc-icon-button @click=${()=>{jisho(this.item.v.replace(/\((.+)\)/g, ''))}}><img src="./img/jisho.ico"></mwc-icon-button>
