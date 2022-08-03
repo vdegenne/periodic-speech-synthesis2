@@ -83,6 +83,9 @@ export class ProjectsManager {
       }
     }
   }
+  insertProject (project: Project) {
+    this.projects.push(project)
+  }
 
   deleteItem (item: Item) {
     const project = this.getProjectFromItem(item)

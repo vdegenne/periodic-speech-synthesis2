@@ -10,4 +10,5 @@ export type Project = {
   items: Item[];
   creationDate: number;
   updateDate: number;
+  icon?: string;
 }
