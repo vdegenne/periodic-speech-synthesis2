@@ -7,6 +7,7 @@ import '@material/mwc-textfield'
 import '@material/mwc-formfield'
 import '@material/mwc-checkbox'
 import '@material/mwc-slider'
+import '@material/mwc-textarea'
 
 import './app-container'
 import './project-manager'
@@ -17,6 +18,7 @@ import './item-formatter'
 import './item-bottom-bar'
 import './items-player'
 import './project-edit-dialog'
+import './project-description-dialog'
 import { AppContainer } from './app-container';
 import { LofiPlayer } from './lofi-player'
 

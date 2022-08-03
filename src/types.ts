@@ -11,4 +11,5 @@ export type Project = {
   creationDate: number;
   updateDate: number;
   icon?: string;
+  description?: string;
 }

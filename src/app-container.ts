@@ -9,6 +9,7 @@ import ms from 'ms';
 import { ItemBottomBar } from './item-bottom-bar';
 import { ItemsPlayer } from './items-player';
 import { icons, ProjectEditDialog } from './project-edit-dialog';
+import { ProjectDescriptionDialog } from './project-description-dialog';
 
 @customElement('app-container')
 export class AppContainer extends LitElement {
@@ -24,6 +25,7 @@ export class AppContainer extends LitElement {
   @query('item-bottom-bar') itemBottomBar!: ItemBottomBar;
   @query('items-player') itemsPlayer!: ItemsPlayer;
   @query('project-edit-dialog') projectEditDialog!: ProjectEditDialog;
+  @query('project-description-dialog') projectDescriptionDialog!: ProjectDescriptionDialog;
 
   getProjectNameFromHash() { return decodeURIComponent(window.location.hash.slice(1)) }
   // get currentProject () {
@@ -71,8 +73,8 @@ export class AppContainer extends LitElement {
     right: 0;
     font-size: 1.5em;
   }
-  mwc-top-app-bar > :not(items-player)[slot=actionItems] {
-    margin: 0 0 0 4px;
+  mwc-top-app-bar > items-player {
+    margin: 0 4px 0 0;
   }
   `
 
@@ -98,6 +100,7 @@ export class AppContainer extends LitElement {
       <!-- ${this.interface == 'project' ? html`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>` : nothing} -->
       <div slot="title">${this.interface == 'project' ? `${this.activeProject!.name} (${this.activeProject!.items.length})` : 'Choose a project'}</div>
       <items-player slot="actionItems" .app=${this} @initiate-start=${()=>{this.onItemsPlayerInitiateStart()}}></items-player>
+      ${this.interface == 'project' ? html`<mwc-icon-button slot="actionItems" icon="description" @click=${() => { this.projectDescriptionDialog.open(this.activeProject!) }} style="${this.activeProject!.description ? 'color:#fff59d' : ''}"></mwc-icon-button>` : nothing}
       <settings-dialog slot="actionItems"></settings-dialog>
       <!-- <mwc-icon-button slot="actionItems" icon="music_note" @click=${()=>{window.lofiPlayer.show()}}></mwc-icon-button> -->
       <div style="max-width:800px;margin: 0 auto;display:flex;flex-direction: column;padding-bottom:100px; /*height:calc(100vh - 64px - 50px);*/">
@@ -105,6 +108,7 @@ export class AppContainer extends LitElement {
         ${this.interface == 'project' ? this.projectInterface() : nothing }
         <item-bottom-bar .app=${this}></item-bottom-bar>
         <project-edit-dialog .app=${this}></project-edit-dialog>
+        <project-description-dialog></project-description-dialog>
       </div>
     </mwc-top-app-bar>
     `
