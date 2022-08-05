@@ -10,6 +10,7 @@ import { ItemBottomBar } from './item-bottom-bar';
 import { ItemsPlayer } from './items-player';
 import { icons, ProjectEditDialog } from './project-edit-dialog';
 import { ProjectDescriptionDialog } from './project-description-dialog';
+import { TextArea } from '@material/mwc-textarea';
 
 @customElement('app-container')
 export class AppContainer extends LitElement {
@@ -88,6 +89,7 @@ export class AppContainer extends LitElement {
     window.addEventListener('hashchange', () => this.interpretHash())
 
     window.addEventListener('paste', (e) => {
+      if (e.composedPath()[0] instanceof HTMLTextAreaElement) { e.stopImmediatePropagation(); return }
       const paste = (e as ClipboardEvent).clipboardData!.getData('text').trim()
       this.addNewItem(paste)
     })
