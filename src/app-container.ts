@@ -4,7 +4,7 @@ import { customElement, query, queryAll, state } from 'lit/decorators.js'
 import { ItemStrip } from './item-strip';
 import { ProjectsManager } from './project-manager';
 import { InterfaceType, Item, Project } from './types';
-import { googleImageSearch, jisho, playJapaneseAudio } from './util';
+import { googleImageSearch, jisho, playJapaneseAudio, urlRegexp } from './util';
 import ms from 'ms';
 import { ItemBottomBar } from './item-bottom-bar';
 import { ItemsPlayer } from './items-player';
@@ -98,7 +98,7 @@ export class AppContainer extends LitElement {
     <mwc-top-app-bar>
       <mwc-icon-button slot="navigationIcon" ?disabled=${this.interface == 'main'} @click=${()=>{this.removeHashFromUrl()}}><img src="./favicon.ico" width=24></mwc-icon-button>
       <!-- ${this.interface == 'project' ? html`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>` : nothing} -->
-      <div slot="title">${this.interface == 'project' ? `${this.activeProject!.name} (${this.activeProject!.items.length})` : 'Choose a project'}</div>
+      <div slot="title">${this.interface == 'project' ? this.projectTitleTemplate() : 'Choose a project'}</div>
       <items-player slot="actionItems" .app=${this} @initiate-start=${()=>{this.onItemsPlayerInitiateStart()}}></items-player>
       ${this.interface == 'project' ? html`<mwc-icon-button slot="actionItems" icon="description" @click=${() => { this.projectDescriptionDialog.open(this.activeProject!) }} style="${this.activeProject!.description ? 'color:#fff59d' : ''}"></mwc-icon-button>` : nothing}
       <settings-dialog slot="actionItems"></settings-dialog>
@@ -187,6 +187,17 @@ export class AppContainer extends LitElement {
       })}
       </div>
     `
+  }
+
+  projectTitleTemplate () {
+    if (!this.activeProject) { return }
+    let urlMatch
+    if (this.activeProject.description && (urlMatch = this.activeProject.description.match(urlRegexp))) {
+      return html`<a href="${urlMatch[0]}" target="_blank" style="color:inherit">${this.activeProject.name}</a>`
+    }
+    else {
+      return html`${this.activeProject.name}`
+    }
   }
 
   protected async updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): Promise<void> {

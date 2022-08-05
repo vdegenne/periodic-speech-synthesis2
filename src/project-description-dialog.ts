@@ -31,6 +31,7 @@ export class ProjectDescriptionDialog extends LitElement {
     else {
       this.viewMode = true
       this.project.description = this.textarea.value
+      window.app.requestUpdate()
       window.app.projectsManager.saveProjectsToLocalStorage()
     }
   }
