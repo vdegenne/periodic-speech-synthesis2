@@ -101,7 +101,7 @@ export class AppContainer extends LitElement {
       <mwc-icon-button slot="navigationIcon" ?disabled=${this.interface == 'main'} @click=${()=>{this.removeHashFromUrl()}}><img src="./favicon.ico" width=24></mwc-icon-button>
       <!-- ${this.interface == 'project' ? html`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>` : nothing} -->
       <div slot="title">${this.interface == 'project' ? this.projectTitleTemplate() : 'Choose a project'}</div>
-      <items-player slot="actionItems" .app=${this} @initiate-start=${()=>{this.onItemsPlayerInitiateStart()}}></items-player>
+      <items-player slot="actionItems" .app=${this} @initiate-start=${()=>{this.onItemsPlayerInitiateStart()}} @start=${() => {this.onItemsPlayerStart()}}></items-player>
       ${this.interface == 'project' ? html`<mwc-icon-button slot="actionItems" icon="description" @click=${() => { this.projectDescriptionDialog.open(this.activeProject!) }} style="${this.activeProject!.description ? 'color:#fff59d' : ''}"></mwc-icon-button>` : nothing}
       <settings-dialog slot="actionItems"></settings-dialog>
       <!-- <mwc-icon-button slot="actionItems" icon="music_note" @click=${()=>{window.lofiPlayer.show()}}></mwc-icon-button> -->
@@ -165,7 +165,7 @@ export class AppContainer extends LitElement {
 
               @activeToggle=${()=>{
                 // this.requestUpdate();
-                this.activeProject!.updateDate = Date.now()
+                // this.activeProject!.updateDate = Date.now()
                 this.projectsManager.saveProjectsToLocalStorage()
               }}
 
@@ -226,6 +226,12 @@ export class AppContainer extends LitElement {
     }
   }
 
+  private onItemsPlayerStart () {
+    if (this.activeProject == undefined) { return }
+    this.activeProject.updateDate = Date.now()
+    this.projectsManager.saveProjectsToLocalStorage()
+  }
+
   // async highlightItemFromValue (value: string) {
   //   const index = this.projectsManager.currentProject?.items.findIndex(i=>i.v===value)
   //   if (index !== undefined && index >= 0) {
@@ -275,7 +281,7 @@ export class AppContainer extends LitElement {
         //   await this.updateComplete
         //   this.highlightItemFromValue(input)
         // }
-        this.activeProject!.updateDate = Date.now()
+        // this.activeProject!.updateDate = Date.now()
         this.projectsManager.saveProjectsToLocalStorage()
       }
     }

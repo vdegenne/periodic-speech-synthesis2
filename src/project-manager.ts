@@ -91,7 +91,7 @@ export class ProjectsManager {
     const project = this.getProjectFromItem(item)
     if (project) {
       project.items.splice(project.items.indexOf(item), 1);
-      project.updateDate = Date.now()
+      // project.updateDate = Date.now()
       this.saveProjectsToLocalStorage()
     }
   }

@@ -98,6 +98,7 @@ export class ItemsPlayer extends LitElement {
         this.dialog.close()
         this.playing = true
         this.runTimeout(true)
+        this.dispatchEvent(new CustomEvent('start'))
       }
       else {
         this.dispatchEvent(new CustomEvent('initiate-start'))
