@@ -14,6 +14,7 @@ export const icons = [
   {name: 'feed', color: 'grey'},
   {name: 'reorder', color: 'black'},
   {name: 'star', color: 'yellow'},
+  {name: 'nature_people', color: '#2196f3'}
 ]
 
 @customElement('project-edit-dialog')
