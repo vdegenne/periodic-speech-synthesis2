@@ -1,5 +1,5 @@
 import { hasJapanese } from 'asian-regexps';
-import { html, LitElement, nothing } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { ProjectsManager } from './project-manager';
 import { sharedStyles } from './styles/sharedStyles';
@@ -10,7 +10,9 @@ export class PrintPage extends LitElement {
   @state() projectName?: string;
   protected projectsManager: ProjectsManager;
 
-  static styles = [sharedStyles]
+  static styles = [sharedStyles, css`
+
+  `]
 
   constructor () {
     super()
@@ -26,8 +28,8 @@ export class PrintPage extends LitElement {
     const project = this.projectsManager.getProjectFromTitle(this.projectName)
     if (!project) { return 'This project does not exist'}
 
-    return html`${project.items.map((item) => {
-      return html`<div ?jp=${hasJapanese(item.v)}>${item.v}</div>`
+    return html`${project.items.reverse().map((item) => {
+      return html`<div ?jp=${hasJapanese(item.v)} style="${item.a ? '' : 'color:grey'}">${item.v}</div>`
     })}`
   }
 }

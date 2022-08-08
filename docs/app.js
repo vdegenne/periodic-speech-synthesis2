@@ -1368,5 +1368,7 @@ class ta extends Re{constructor(e){if(super(e),this.it=te,e.type!==je)throw Erro
   [highlight] {
     color: orange
   }
-  `],i([l()],ia.prototype,"query",void 0),i([p("mwc-dialog")],ia.prototype,"dialog",void 0),ia=i([n("search-dialog")],ia);let aa=class extends ve{constructor(){super(),this.projectsManager=new vi,window.location.hash&&(this.projectName=decodeURIComponent(window.location.hash.slice(1)))}render(){if(!this.projectName)return"Nothing to display";const e=this.projectsManager.getProjectFromTitle(this.projectName);return e?Q`${e.items.map((e=>Q`<div ?jp=${xi(e.v)}>${e.v}</div>`))}`:"This project does not exist"}};aa.styles=[Wi],i([l()],aa.prototype,"projectName",void 0),aa=i([n("print-page")],aa);
+  `],i([l()],ia.prototype,"query",void 0),i([p("mwc-dialog")],ia.prototype,"dialog",void 0),ia=i([n("search-dialog")],ia);let aa=class extends ve{constructor(){super(),this.projectsManager=new vi,window.location.hash&&(this.projectName=decodeURIComponent(window.location.hash.slice(1)))}render(){if(!this.projectName)return"Nothing to display";const e=this.projectsManager.getProjectFromTitle(this.projectName);return e?Q`${e.items.reverse().map((e=>Q`<div ?jp=${xi(e.v)} style="${e.a?"":"color:grey"}">${e.v}</div>`))}`:"This project does not exist"}};aa.styles=[Wi,S`
+
+  `],i([l()],aa.prototype,"projectName",void 0),aa=i([n("print-page")],aa);
 //# sourceMappingURL=app.js.map
