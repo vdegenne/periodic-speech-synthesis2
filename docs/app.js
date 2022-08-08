@@ -1359,7 +1359,7 @@ class ta extends Re{constructor(e){if(super(e),this.it=te,e.type!==je)throw Erro
 
       <mwc-button outlined slot=secondaryAction dialogAction=close>close</mwc-button>
     </mwc-dialog>
-    `}search(e,t){e!=this.query&&(this.query=e,this.result=[],this.app.projectsManager.projects.forEach((o=>{const i=o.items.filter((o=>o.v.includes(e)&&o!==t));0!=i.length&&this.result.push({project:o,items:i})})),this.requestUpdate())}open(e,t){this.search(e,t),this.show()}show(){this.dialog.show()}};ia.styles=[Wi,S`
+    `}search(e,t){e!=this.query&&(this.query=e,this.result=[],this.app.projectsManager.projects.forEach((o=>{const i=o.items.filter((o=>o.v.includes(e)&&o!==t));0!=i.length&&this.result.push({project:o,items:i})})),this.requestUpdate())}open(e,t){this.search(e,t),0!=this.result.length?this.show():window.toast("no result")}show(){this.dialog.show()}};ia.styles=[Wi,S`
   .project {
     margin: 24px 0;
   }
