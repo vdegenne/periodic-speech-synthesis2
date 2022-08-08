@@ -10,7 +10,7 @@ import { ItemBottomBar } from './item-bottom-bar';
 import { ItemsPlayer } from './items-player';
 import { icons, ProjectEditDialog } from './project-edit-dialog';
 import { ProjectDescriptionDialog } from './project-description-dialog';
-import { TextArea } from '@material/mwc-textarea';
+import { SearchDialog } from './search-dialog';
 
 @customElement('app-container')
 export class AppContainer extends LitElement {
@@ -27,6 +27,7 @@ export class AppContainer extends LitElement {
   @query('items-player') itemsPlayer!: ItemsPlayer;
   @query('project-edit-dialog') projectEditDialog!: ProjectEditDialog;
   @query('project-description-dialog') projectDescriptionDialog!: ProjectDescriptionDialog;
+  @query('search-dialog') searchDialog!: SearchDialog;
 
   getProjectNameFromHash() { return decodeURIComponent(window.location.hash.slice(1)) }
   // get currentProject () {
@@ -63,9 +64,10 @@ export class AppContainer extends LitElement {
     background-color: #ffeb3b;
   }
   #controls {
-    margin: 12px;
+    margin: 4px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
   }
   item-bottom-bar {
     position: fixed;
@@ -93,6 +95,17 @@ export class AppContainer extends LitElement {
       const paste = (e as ClipboardEvent).clipboardData!.getData('text').trim()
       this.addNewItem(paste)
     })
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code == 'Digit2' && e.altKey) {
+        e.stopPropagation()
+        e.preventDefault()
+        const selection = window.getSelection()?.toString()
+        if (selection) {
+          this.searchDialog.open(selection)
+        }
+      }
+    })
   }
 
   render () {
@@ -111,6 +124,7 @@ export class AppContainer extends LitElement {
         <item-bottom-bar .app=${this}></item-bottom-bar>
         <project-edit-dialog .app=${this}></project-edit-dialog>
         <project-description-dialog></project-description-dialog>
+        <search-dialog .app=${this}></search-dialog>
       </div>
     </mwc-top-app-bar>
     `
@@ -155,6 +169,7 @@ export class AppContainer extends LitElement {
       <div id="controls">
         <!-- <mwc-icon-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-icon-button> -->
         <mwc-button outlined slot="actionItems" icon="add" @click=${()=>{this.addNewItem()}}>item</mwc-button>
+        <mwc-icon-button icon="print" @click=${()=>{window.open(`./print#${this.activeProject?.name}`, '_blank')}}></mwc-icon-button>
       </div>
       <div id="items">
       ${project.items.map((item, i) => {

@@ -63,7 +63,7 @@ export async function playJapaneseAudio(word: string, withSearch = true) {
       throw new Error;
     }
   } catch (e) {
-    await speakJapanese(word)
+    await speakJapanese(word, 1, 0.8)
   }
 }
 

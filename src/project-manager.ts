@@ -6,20 +6,22 @@ import { Item, Project } from './types'
 import copyToClipboard from '@vdegenne/clipboard-copy';
 
 export class ProjectsManager {
-  private app: AppContainer;
+  private app?: AppContainer;
   public projects: Project[] = this.getProjectsFromLocalStorage() || [];
 
 
   // @query('mwc-dialog') dialog!: Dialog;
 
-  constructor (app: AppContainer) {
+  constructor (app?: AppContainer) {
     this.projects = this.getProjectsFromLocalStorage() || []
     // if (this.projects == null) {
     //   this.getProjectsFromRemote().then(data => {
     //     this.projects = data || []
     //   })
     // }
-    this.app = app
+    if (app) {
+      this.app = app
+    }
   }
 
   projectExists (projectName: string): boolean {
@@ -43,12 +45,12 @@ export class ProjectsManager {
     const accept = confirm(`Are you sure to delete "${project.name}" ?`)
     if (accept) {
       // Stop playing if we delete the project that is currently playing
-      if (project.name === this.app.itemsPlayer.projectName) {
+      if (this.app && project.name === this.app.itemsPlayer.projectName) {
         this.app.itemsPlayer.stop()
       }
       // Remove the project from the list
       this.projects.splice(this.projects.indexOf(project), 1)
-      this.app.requestUpdate()
+      this.app?.requestUpdate()
       this.saveProjectsToLocalStorage()
     }
   }
@@ -59,7 +61,7 @@ export class ProjectsManager {
       if (newName == project.name) { return }
 
       project.name = newName
-      this.app.requestUpdate()
+      this.app?.requestUpdate()
       this.saveProjectsToLocalStorage()
     }
   }
@@ -78,7 +80,7 @@ export class ProjectsManager {
           name: projectName,
           items: []
         })
-        this.app.requestUpdate()
+        this.app?.requestUpdate()
         this.saveProjectsToLocalStorage()
       }
     }
@@ -130,7 +132,7 @@ export class ProjectsManager {
 
   async loadProjectsFromRemote () {
     this.projects = await this.getProjectsFromRemote()
-    this.app.requestUpdate()
+    this.app?.requestUpdate()
   }
 
 
