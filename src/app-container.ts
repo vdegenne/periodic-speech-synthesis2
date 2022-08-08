@@ -17,8 +17,8 @@ export class AppContainer extends LitElement {
   @state() interface: InterfaceType = 'main';
   @state() activeProject?: Project;
   @state() highlightIndex = -1
-
   public projectsManager: ProjectsManager = new ProjectsManager(this);
+  private activeItemStrip?: ItemStrip;
 
   @query('#items') itemsBox!: HTMLDivElement;
   @queryAll('item-strip') itemStrips!: ItemStrip[];
@@ -102,7 +102,7 @@ export class AppContainer extends LitElement {
         e.preventDefault()
         const selection = window.getSelection()?.toString()
         if (selection) {
-          this.searchDialog.open(selection)
+          this.searchDialog.open(selection, this.activeItemStrip?.item)
         }
       }
     })
@@ -177,6 +177,10 @@ export class AppContainer extends LitElement {
         <div class="item-strip-container" style="display:flex;align-items:center;justify-content:stretch">
           <!--<span style="color:grey">${i+1}.</span>--><item-strip .item=${item}
               ?highlight=${i == this.highlightIndex}
+
+              @click=${(e)=>{
+                this.activeItemStrip = e.target;
+              }}
 
               @activeToggle=${()=>{
                 // this.requestUpdate();

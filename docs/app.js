@@ -1090,7 +1090,7 @@ const bi=S`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
       <mwc-button outlined slot="secondaryAction" dialogAction=close>cancel</mwc-button>
       <mwc-button unelevated slot="primaryAction" ?disabled=${this.textfield&&0==this.textfield.value.length} @click=${()=>{this.submit()}}>${this.type}</mwc-button>
     </mwc-dialog>
-    `}illuminateIconButton(e){if(this.iconButtons.forEach((e=>{e.ripple.then((e=>{e&&(e.activated=!1)}))})),!e)return;const t=[...this.iconButtons].find((t=>t.icon==e));t&&t.ripple.then((e=>{e&&(e.activated=!0)}))}submit(){const e=this.textfield.value;if(!e)return void window.toast("Title can't be empty.");const t=this.app.projectsManager.projects.filter((e=>e.name!==this.title));t.find((t=>t.name==e))?window.toast("This title is already taken"):(this.submitPromiseResolve({name:this.textfield.value,creationDate:Date.now(),updateDate:Date.now(),items:[],icon:this.iconName}),this.dialog.close())}fill(e,t){this.title=this.textfield.value=e||"",t&&(this.iconName=t),this.illuminateIconButton(t)}open(e){this.type=e?"Update":"Create",this.fill(null==e?void 0:e.name,null==e?void 0:e.icon);const t=new Promise(((e,t)=>{this.submitPromiseResolve=e,this.submitPromiseReject=t}));return this.dialog.show(),t}};i([l()],Ui.prototype,"type",void 0),i([l()],Ui.prototype,"title",void 0),i([l()],Ui.prototype,"iconName",void 0),i([p("mwc-dialog")],Ui.prototype,"dialog",void 0),i([p("mwc-textfield")],Ui.prototype,"textfield",void 0),i([u("mwc-icon-button")],Ui.prototype,"iconButtons",void 0),Ui=i([n("project-edit-dialog")],Ui);let Ji=class extends ve{constructor(){super(),this.interface="main",this.highlightIndex=-1,this.projectsManager=new vi(this),this.bindEventListeners(),this.interpretHash()}getProjectNameFromHash(){return decodeURIComponent(window.location.hash.slice(1))}bindEventListeners(){window.addEventListener("hashchange",(()=>this.interpretHash())),window.addEventListener("paste",(e=>{if(e.composedPath()[0]instanceof HTMLTextAreaElement)return void e.stopImmediatePropagation();const t=e.clipboardData.getData("text").trim();this.addNewItem(t)})),window.addEventListener("keydown",(e=>{var t;if("Digit2"==e.code&&e.altKey){e.stopPropagation(),e.preventDefault();const o=null===(t=window.getSelection())||void 0===t?void 0:t.toString();o&&this.searchDialog.open(o)}}))}render(){return Q`
+    `}illuminateIconButton(e){if(this.iconButtons.forEach((e=>{e.ripple.then((e=>{e&&(e.activated=!1)}))})),!e)return;const t=[...this.iconButtons].find((t=>t.icon==e));t&&t.ripple.then((e=>{e&&(e.activated=!0)}))}submit(){const e=this.textfield.value;if(!e)return void window.toast("Title can't be empty.");const t=this.app.projectsManager.projects.filter((e=>e.name!==this.title));t.find((t=>t.name==e))?window.toast("This title is already taken"):(this.submitPromiseResolve({name:this.textfield.value,creationDate:Date.now(),updateDate:Date.now(),items:[],icon:this.iconName}),this.dialog.close())}fill(e,t){this.title=this.textfield.value=e||"",t&&(this.iconName=t),this.illuminateIconButton(t)}open(e){this.type=e?"Update":"Create",this.fill(null==e?void 0:e.name,null==e?void 0:e.icon);const t=new Promise(((e,t)=>{this.submitPromiseResolve=e,this.submitPromiseReject=t}));return this.dialog.show(),t}};i([l()],Ui.prototype,"type",void 0),i([l()],Ui.prototype,"title",void 0),i([l()],Ui.prototype,"iconName",void 0),i([p("mwc-dialog")],Ui.prototype,"dialog",void 0),i([p("mwc-textfield")],Ui.prototype,"textfield",void 0),i([u("mwc-icon-button")],Ui.prototype,"iconButtons",void 0),Ui=i([n("project-edit-dialog")],Ui);let Ji=class extends ve{constructor(){super(),this.interface="main",this.highlightIndex=-1,this.projectsManager=new vi(this),this.bindEventListeners(),this.interpretHash()}getProjectNameFromHash(){return decodeURIComponent(window.location.hash.slice(1))}bindEventListeners(){window.addEventListener("hashchange",(()=>this.interpretHash())),window.addEventListener("paste",(e=>{if(e.composedPath()[0]instanceof HTMLTextAreaElement)return void e.stopImmediatePropagation();const t=e.clipboardData.getData("text").trim();this.addNewItem(t)})),window.addEventListener("keydown",(e=>{var t,o;if("Digit2"==e.code&&e.altKey){e.stopPropagation(),e.preventDefault();const i=null===(t=window.getSelection())||void 0===t?void 0:t.toString();i&&this.searchDialog.open(i,null===(o=this.activeItemStrip)||void 0===o?void 0:o.item)}}))}render(){return Q`
     <mwc-top-app-bar>
       <mwc-icon-button slot="navigationIcon" ?disabled=${"main"==this.interface} @click=${()=>{this.removeHashFromUrl()}}><img src="./favicon.ico" width=24></mwc-icon-button>
       <!-- ${"project"==this.interface?Q`<mwc-icon-button icon="arrow_back" slot="navigationIcon" @click=${()=>{this.removeHashFromUrl()}}></mwc-icon-button>`:te} -->
@@ -1131,6 +1131,8 @@ const bi=S`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
         <div class="item-strip-container" style="display:flex;align-items:center;justify-content:stretch">
           <!--<span style="color:grey">${t+1}.</span>--><item-strip .item=${e}
               ?highlight=${t==this.highlightIndex}
+
+              @click=${e=>{this.activeItemStrip=e.target}}
 
               @activeToggle=${()=>{this.projectsManager.saveProjectsToLocalStorage()}}
 
@@ -1193,13 +1195,13 @@ const bi=S`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
           ${o.length?Q`<mwc-icon style="color:grey;cursor:default" title="${o.map((e=>e.name)).join("\n")}">workspaces</mwc-icon>`:te}
         </div>
         <!-- <span style="flex:1" id=text jp>${this.item.v}${e?`(${e[4]})`:""}</span> -->
-        <mwc-icon-button icon="volume_up" @click=${()=>{this.playWord()}}></mwc-icon-button>
-        <mwc-icon-button @click=${()=>{qi(this.item.v.replace(/\((.+)\)/g,""))}}><img src="./img/jisho.ico"></mwc-icon-button>
-        <mwc-icon-button icon="remove_red_eyes" @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
-        <mwc-icon-button icon="edit" @click=${()=>{this.dispatchEvent(new CustomEvent("edit"))}}></mwc-icon-button>
-        <mwc-icon-button icon="delete" @click=${()=>{this.onDeleteIconClick()}}></mwc-icon-button>
+        <mwc-icon-button icon="volume_up" @click=${e=>{e.stopPropagation(),this.playWord()}}></mwc-icon-button>
+        <mwc-icon-button @click=${e=>{e.stopPropagation(),qi(this.item.v.replace(/\((.+)\)/g,""))}}><img src="./img/jisho.ico"></mwc-icon-button>
+        <mwc-icon-button icon="remove_red_eyes" @click=${e=>{this.onEyeIconClick(e)}}></mwc-icon-button>
+        <mwc-icon-button icon="edit" @click=${e=>{e.stopPropagation(),this.dispatchEvent(new CustomEvent("edit"))}}></mwc-icon-button>
+        <mwc-icon-button icon="delete" @click=${e=>{this.onDeleteIconClick(e)}}></mwc-icon-button>
       </div>
-    `}playWord(){Li(this.item.v)}onEyeIconClick(){this.item.a=!this.item.a,this.requestUpdate(),this.dispatchEvent(new CustomEvent("activeToggle"))}onDeleteIconClick(){confirm("are you sure to delete this item")&&this.dispatchEvent(new CustomEvent("delete"))}};Gi.styles=[Wi,S`
+    `}playWord(){Li(this.item.v)}onEyeIconClick(e){e.stopPropagation(),this.item.a=!this.item.a,this.requestUpdate(),this.dispatchEvent(new CustomEvent("activeToggle"))}onDeleteIconClick(e){e.stopPropagation();confirm("are you sure to delete this item")&&this.dispatchEvent(new CustomEvent("delete"))}};Gi.styles=[Wi,S`
   :host {
     display: flex;
     align-items: center;
@@ -1346,20 +1348,20 @@ class ta extends Re{constructor(e){if(super(e),this.it=te,e.type!==je)throw Erro
     <mwc-dialog heading="Search (${this.query})">
 
       ${0==this.result.length?Q`no result`:te}
-      ${this.result.map((e=>Q`
+      ${this.result.map((e=>{const t=this.app.activeProject&&this.app.activeProject==e.project;return Q`
         <div class=project>
-          <div style="font-weight:bold;font-size:1.3em;margin-bottom:9px;color:black;">${e.project.name}</div>
+          <div style="font-size:1em;font-weight:500;margin-bottom:9px;color:${t?"orange":"black"};">${e.project.name}${t?" (current)":""}</div>
           <div class=items>
             ${e.items.map((e=>{return Q`<div class=item ?jp=${xi(e.v)}>${t=e.v,o=this.query,oa(t.replace(new RegExp(o,"gi"),(function(e){return`<span highlight>${e}</span>`})))}</div>`;var t,o}))}
           </div>
         </div>
-        `))}
+        `}))}
 
       <mwc-button outlined slot=secondaryAction dialogAction=close>close</mwc-button>
     </mwc-dialog>
-    `}search(e){e!=this.query&&(this.query=e,this.result=[],this.app.projectsManager.projects.filter((e=>null==this.app.activeProject||e.name!==this.app.activeProject.name)).forEach((t=>{const o=t.items.filter((t=>t.v.includes(e)));0!=o.length&&this.result.push({project:t,items:o})})),this.requestUpdate())}open(e){this.search(e),this.show()}show(){this.dialog.show()}};ia.styles=[Wi,S`
+    `}search(e,t){e!=this.query&&(this.query=e,this.result=[],this.app.projectsManager.projects.forEach((o=>{const i=o.items.filter((o=>o.v.includes(e)&&o!==t));0!=i.length&&this.result.push({project:o,items:i})})),this.requestUpdate())}open(e,t){this.search(e,t),this.show()}show(){this.dialog.show()}};ia.styles=[Wi,S`
   .project {
-    margin-bottom: 24px;
+    margin: 24px 0;
   }
   .item {
     font-size: 1.5em;

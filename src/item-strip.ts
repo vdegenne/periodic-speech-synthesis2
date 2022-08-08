@@ -52,7 +52,6 @@ export class ItemStrip extends LitElement {
     const project = window.app.projectsManager.getProjectFromItem(this.item)
     const otherProjects = window.app.projectsManager.getProjectsFromItemValue(this.item.v).filter(p => p !== project)
 
-
     return html`
       <div style="display: flex;align-items: center;flex:1">
         <div style="flex:1">
@@ -60,24 +59,26 @@ export class ItemStrip extends LitElement {
           ${otherProjects.length ? html`<mwc-icon style="color:grey;cursor:default" title="${otherProjects.map(p=>p.name).join('\n')}">workspaces</mwc-icon>` : nothing}
         </div>
         <!-- <span style="flex:1" id=text jp>${this.item.v}${exactSearch ? `(${exactSearch[4]})` : ''}</span> -->
-        <mwc-icon-button icon="volume_up" @click=${()=>{this.playWord()}}></mwc-icon-button>
-        <mwc-icon-button @click=${()=>{jisho(this.item.v.replace(/\((.+)\)/g, ''))}}><img src="./img/jisho.ico"></mwc-icon-button>
-        <mwc-icon-button icon="remove_red_eyes" @click=${()=>{this.onEyeIconClick()}}></mwc-icon-button>
-        <mwc-icon-button icon="edit" @click=${()=>{this.dispatchEvent(new CustomEvent('edit'))}}></mwc-icon-button>
-        <mwc-icon-button icon="delete" @click=${()=>{this.onDeleteIconClick()}}></mwc-icon-button>
+        <mwc-icon-button icon="volume_up" @click=${(e)=>{e.stopPropagation(); this.playWord()}}></mwc-icon-button>
+        <mwc-icon-button @click=${(e)=>{e.stopPropagation(); jisho(this.item.v.replace(/\((.+)\)/g, ''))}}><img src="./img/jisho.ico"></mwc-icon-button>
+        <mwc-icon-button icon="remove_red_eyes" @click=${(e)=>{this.onEyeIconClick(e)}}></mwc-icon-button>
+        <mwc-icon-button icon="edit" @click=${(e)=>{e.stopPropagation(); this.dispatchEvent(new CustomEvent('edit'))}}></mwc-icon-button>
+        <mwc-icon-button icon="delete" @click=${(e)=>{this.onDeleteIconClick(e)}}></mwc-icon-button>
       </div>
     `
   }
 
   playWord () { playWord(this.item.v) }
 
-  onEyeIconClick() {
+  onEyeIconClick(e) {
+    e.stopPropagation()
     this.item.a = !this.item.a
     this.requestUpdate()
     this.dispatchEvent(new CustomEvent('activeToggle'))
   }
 
-  onDeleteIconClick () {
+  onDeleteIconClick (e) {
+    e.stopPropagation()
     const accept = confirm('are you sure to delete this item')
     if (accept) {
       this.dispatchEvent(new CustomEvent('delete'))

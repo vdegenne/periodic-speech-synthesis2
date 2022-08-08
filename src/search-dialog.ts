@@ -6,6 +6,7 @@ import { AppContainer } from './app-container';
 import { hasJapanese } from 'asian-regexps';
 import { sharedStyles } from './styles/sharedStyles';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { styleMap } from 'lit/directives/style-map.js';
 
 declare type searchItemResult = { project: Project, items: Item[] }
 declare type searchResult = searchItemResult[]
@@ -20,7 +21,7 @@ export class SearchDialog extends LitElement {
 
   static styles = [sharedStyles, css`
   .project {
-    margin-bottom: 24px;
+    margin: 24px 0;
   }
   .item {
     font-size: 1.5em;
@@ -37,9 +38,10 @@ export class SearchDialog extends LitElement {
 
       ${this.result.length == 0 ? html`no result` : nothing }
       ${this.result.map((result) => {
+        const isCurrentProject = this.app.activeProject && this.app.activeProject == result.project
         return html`
         <div class=project>
-          <div style="font-weight:bold;font-size:1.3em;margin-bottom:9px;color:black;">${result.project.name}</div>
+          <div style="font-size:1em;font-weight:500;margin-bottom:9px;color:${isCurrentProject ? 'orange' : 'black'};">${result.project.name}${isCurrentProject ? ' (current)' : ''}</div>
           <div class=items>
             ${result.items.map((item) => {
               return html`<div class=item ?jp=${hasJapanese(item.v)}>${highlightParts(item.v, this.query)}</div>`
@@ -55,14 +57,16 @@ export class SearchDialog extends LitElement {
   }
 
 
-  search (input: string) {
+  search (input: string, ignoreItem?: Item) {
     if (input == this.query) { return }
     this.query = input;
 
     this.result = []
     // let result: searchResult = [];
-    this.app.projectsManager.projects.filter((p)=>this.app.activeProject == undefined || p.name !== this.app.activeProject.name).forEach((project) => {
-      const items = project.items.filter(i => i.v.includes(input))
+    this.app.projectsManager.projects.forEach((project) => {
+      const items = project.items.filter((item) => {
+        return item.v.includes(input) && item !== ignoreItem
+      })
       if (items.length == 0) { return }
       this.result.push({
         project,
@@ -73,8 +77,8 @@ export class SearchDialog extends LitElement {
     this.requestUpdate()
   }
 
-  open (input: string) {
-    this.search(input)
+  open (input: string, ignoreItem?: Item) {
+    this.search(input, ignoreItem)
     this.show()
   }
 
