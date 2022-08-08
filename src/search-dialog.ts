@@ -80,7 +80,7 @@ export class SearchDialog extends LitElement {
   open (input: string, ignoreItem?: Item) {
     this.search(input, ignoreItem)
     if (this.result.length == 0) {
-      window.toast('no result')
+      window.toast('no result', 1000)
       return
     }
     else {

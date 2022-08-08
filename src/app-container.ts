@@ -214,7 +214,7 @@ export class AppContainer extends LitElement {
     if (!this.activeProject) { return }
     let urlMatch
     if (this.activeProject.description && (urlMatch = this.activeProject.description.match(urlRegexp))) {
-      return html`<a href="${urlMatch[0]}" target="_blank" style="color:inherit">${this.activeProject.name}</a>`
+      return html`<a href="${urlMatch[0]}" target="_blank" style="color:inherit">${this.activeProject.name} (${this.activeProject.items.length})</a>`
     }
     else {
       return html`${this.activeProject.name}`
