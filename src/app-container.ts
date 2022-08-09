@@ -4,7 +4,7 @@ import { customElement, query, queryAll, state } from 'lit/decorators.js'
 import { ItemStrip } from './item-strip';
 import { ProjectsManager } from './project-manager';
 import { InterfaceType, Item, Project } from './types';
-import { googleImageSearch, jisho, playJapaneseAudio, urlRegexp } from './util';
+import { googleImageSearch, jisho, playJapaneseAudio, playWord, urlRegexp } from './util';
 import ms from 'ms';
 import { ItemBottomBar } from './item-bottom-bar';
 import { ItemsPlayer } from './items-player';
@@ -87,6 +87,7 @@ export class AppContainer extends LitElement {
     // this.projectsManager.setAttribute('slot', 'actionItems')
     this.interpretHash()
   }
+
   bindEventListeners () {
     window.addEventListener('hashchange', () => this.interpretHash())
 
@@ -97,6 +98,7 @@ export class AppContainer extends LitElement {
     })
 
     window.addEventListener('keydown', (e) => {
+      // Open the search dialog on Alt + 2
       if (e.code == 'Digit2' && e.altKey) {
         e.stopPropagation()
         e.preventDefault()
@@ -105,6 +107,8 @@ export class AppContainer extends LitElement {
           this.searchDialog.open(selection, this.activeItemStrip?.item)
         }
       }
+
+      // Move item down in the list on Arrow Down
       if (e.code == 'ArrowDown' && this.activeItemStrip) {
         e.preventDefault()
         const item = this.activeItemStrip.item
@@ -115,6 +119,7 @@ export class AppContainer extends LitElement {
           this.activeItemStrip = newStrip
         })
       }
+      // Move item up in the list on Arrow Up
       if (e.code == 'ArrowUp' && this.activeItemStrip) {
         e.preventDefault()
         const item = this.activeItemStrip.item
@@ -124,6 +129,24 @@ export class AppContainer extends LitElement {
           const newStrip = this.getItemStripFromItem(item)
           this.activeItemStrip = newStrip
         })
+      }
+
+      if (e.code == 'Escape') {
+        this.activeItemStrip = undefined
+      }
+
+
+      const value = this.activeItemStrip?.item.v || this.itemBottomBar?.item.v
+      if (value) {
+        if (e.code == 'KeyA') {
+          googleImageSearch(value)
+        }
+        if (e.code == 'KeyG') {
+          jisho(value)
+        }
+        if (e.code == 'KeyS') {
+          playWord(value)
+        }
       }
     })
   }

@@ -123,7 +123,7 @@ export class ItemsPlayer extends LitElement {
     this.progressionRate = ~~((activeItems.length - candidates.length) * (100 / activeItems.length))
 
     if (candidates.length == 0) {
-      // @TODO play a shuffle sound
+      playResetAudio()
       this._historyList = []
       candidates = this.activeItems // @TODO filter if "include inactive items" is checked
       if (candidates.length == 0) { return null }
@@ -174,3 +174,7 @@ export class ItemsPlayer extends LitElement {
     }, prerun ? 0 : this.pauseTimeS * 1000)
   }
 }
+
+
+const resetAudio = new Audio('./audio/erase.mp3')
+function playResetAudio () { resetAudio.play() }

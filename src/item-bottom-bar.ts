@@ -18,21 +18,6 @@ export class ItemBottomBar extends LitElement {
   @query('#controls [icon="images"]') imagesButton?: Button;
   @query('#controls #jishoButton') jishoButton?: Button;
 
-  constructor () {
-    super()
-    window.addEventListener('keydown', (e) => {
-      if (e.code == 'KeyA' && this.imagesButton) {
-        this.imagesButton.click()
-      }
-      if (e.code == 'KeyG' && this.jishoButton) {
-        this.jishoButton.click()
-      }
-      if (e.code == 'KeyS' && this.volumeUpButton) {
-        this.volumeUpButton.click()
-      }
-    })
-  }
-
   static styles = [sharedStyles, css`
   #container {
     display: flex;
@@ -53,9 +38,9 @@ export class ItemBottomBar extends LitElement {
         <mwc-icon-button id=jishoButton @click=${()=>{jisho(this.item.v.replace(/\((.*)\)/g, ''))}}>
           <img src="./img/jisho.ico" style="width:20px;height:20px">
         </mwc-icon-button>
-        <mwc-icon-button icon="${this.item.a ? 'remove_red_eye' : 'visibility_off'}"
+        <!-- <mwc-icon-button icon="${this.item.a ? 'remove_red_eye' : 'visibility_off'}"
           style="color:${this.item.a ? 'green' : 'red'}"
-          @click=${()=>{this.onEyeClick()}}></mwc-icon-button>
+          @click=${()=>{this.onEyeClick()}}></mwc-icon-button> -->
       </div>
     </div>
     `
