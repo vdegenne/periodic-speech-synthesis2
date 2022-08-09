@@ -1234,7 +1234,7 @@ const bi=S`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
 
     <mwc-dialog heading=Settings>
       <mwc-button outlined @click=${()=>{window.app.projectsManager.copyDataToClipboard()}}>local data to clipboard</mwc-button>
-      <mwc-button outlined @click=${()=>{window.open("https://github.com/vdegenne/periodic-speech-synthesis2/blob/master/docs/data.json","_blank")}}>github</mwc-button>
+      <mwc-button outlined @click=${()=>{window.open("https://github.com/vdegenne/periodic-speech-synthesis2/edit/master/docs/data.json","_blank")}}>github</mwc-button>
       <div style="min-height:24px"></div>
       <mwc-button outlined @click=${()=>{window.app.projectsManager.loadProjectsFromRemote()}}>fetch data from remote</mwc-button>
       <mwc-button outlined slot=secondaryAction dialogAction=close>close</mwc-button>
