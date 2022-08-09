@@ -20,6 +20,7 @@ export class ItemsPlayer extends LitElement {
   @state() repeatCount = 2;
   private _historyList: Item[] = [];
   get isPlaying () { return this.playing }
+  @state() progressionRate?: number;
 
   @query('mwc-dialog') dialog!: Dialog;
 
@@ -39,7 +40,7 @@ export class ItemsPlayer extends LitElement {
 
   render () {
     return html`
-    <mwc-button id="playButton" raised icon="${this.playing ? 'stop' : 'play_arrow'}" @click=${()=>{this.toggleStart()}}>${this.playing ? 'stop' : 'play'}</mwc-button>
+    <mwc-button id="playButton" raised icon="${this.playing ? 'stop' : 'play_arrow'}" @click=${()=>{this.toggleStart()}}>${this.playing ? (this.progressionRate !== undefined ? `${this.progressionRate}%` : 'stop') : 'play'}</mwc-button>
     <mwc-dialog heading='Play \"${this.projectName}\"' style="/*--mdc-dialog-min-width:calc(100vw - 24px)*/"
         @opened=${e => { this.shadowRoot!.querySelectorAll('mwc-slider').forEach(el => el.layout()) }}>
       <p>pause between (seconds)</p>
@@ -116,8 +117,13 @@ export class ItemsPlayer extends LitElement {
 
   pickRandomItem() {
     // Filter the items
-    let candidates = this.activeItems.filter(item => !this._historyList.includes(item))
+    const activeItems = this.activeItems
+    let candidates = activeItems.filter(item => !this._historyList.includes(item))
+
+    this.progressionRate = ~~((activeItems.length - candidates.length) * (100 / activeItems.length))
+
     if (candidates.length == 0) {
+      // @TODO play a shuffle sound
       this._historyList = []
       candidates = this.activeItems // @TODO filter if "include inactive items" is checked
       if (candidates.length == 0) { return null }

@@ -16,9 +16,9 @@ import { SearchDialog } from './search-dialog';
 export class AppContainer extends LitElement {
   @state() interface: InterfaceType = 'main';
   @state() activeProject?: Project;
-  @state() highlightIndex = -1
+  // @state() highlightIndex = -1
   public projectsManager: ProjectsManager = new ProjectsManager(this);
-  private activeItemStrip?: ItemStrip;
+  @state() private activeItemStrip?: ItemStrip;
 
   @query('#items') itemsBox!: HTMLDivElement;
   @queryAll('item-strip') itemStrips!: ItemStrip[];
@@ -61,7 +61,7 @@ export class AppContainer extends LitElement {
     flex:1;
   }
   item-strip[highlight] {
-    background-color: #ffeb3b;
+    background-color: #fff59d;
   }
   #controls {
     margin: 4px;
@@ -105,6 +105,26 @@ export class AppContainer extends LitElement {
           this.searchDialog.open(selection, this.activeItemStrip?.item)
         }
       }
+      if (e.code == 'ArrowDown' && this.activeItemStrip) {
+        e.preventDefault()
+        const item = this.activeItemStrip.item
+        this.projectsManager.moveItemDown(item)
+        this.requestUpdate()
+        this.updateComplete.then(() => {
+          const newStrip = this.getItemStripFromItem(item)
+          this.activeItemStrip = newStrip
+        })
+      }
+      if (e.code == 'ArrowUp' && this.activeItemStrip) {
+        e.preventDefault()
+        const item = this.activeItemStrip.item
+        this.projectsManager.moveItemUp(item)
+        this.requestUpdate()
+        this.updateComplete.then(() => {
+          const newStrip = this.getItemStripFromItem(item)
+          this.activeItemStrip = newStrip
+        })
+      }
     })
   }
 
@@ -121,13 +141,22 @@ export class AppContainer extends LitElement {
       <div style="max-width:800px;margin: 0 auto;display:flex;flex-direction: column;padding-bottom:100px; /*height:calc(100vh - 64px - 50px);*/">
         ${this.interface == 'main' ? this.mainInterface() : nothing }
         ${this.interface == 'project' ? this.projectInterface() : nothing }
-        <item-bottom-bar .app=${this}></item-bottom-bar>
+        <item-bottom-bar .app=${this} @click=${(e)=>{ this.onItemBottomBarClick(e) }}></item-bottom-bar>
         <project-edit-dialog .app=${this}></project-edit-dialog>
         <project-description-dialog></project-description-dialog>
         <search-dialog .app=${this}></search-dialog>
       </div>
     </mwc-top-app-bar>
     `
+  }
+
+  private onItemBottomBarClick (e) {
+    const strip = this.getItemStripFromItem(e.detail.item)
+    if (!strip) { return }
+    this.activeItemStrip = strip
+    this.updateComplete.then(() => {
+      this.scrollToHighlightedStrip()
+    })
   }
 
   mainInterface () {
@@ -169,6 +198,7 @@ export class AppContainer extends LitElement {
       <div id="controls">
         <!-- <mwc-icon-button @click=${()=>{this.onCasinoButtonClick()}}><mwc-icon>casino</mwc-icon></mwc-icon-button> -->
         <mwc-button outlined slot="actionItems" icon="add" @click=${()=>{this.addNewItem()}}>item</mwc-button>
+        <span style="color:#9e9e9e">${project.items.length} items</span>
         <mwc-icon-button icon="print" @click=${()=>{window.open(`./print#${this.activeProject?.name}`, '_blank')}}></mwc-icon-button>
       </div>
       <div id="items">
@@ -176,7 +206,7 @@ export class AppContainer extends LitElement {
         return html`
         <div class="item-strip-container" style="display:flex;align-items:center;justify-content:stretch">
           <!--<span style="color:grey">${i+1}.</span>--><item-strip .item=${item}
-              ?highlight=${i == this.highlightIndex}
+              ?highlight=${this.activeItemStrip && this.activeItemStrip.item === item}
 
               @click=${(e)=>{
                 this.activeItemStrip = e.target;
@@ -214,7 +244,7 @@ export class AppContainer extends LitElement {
     if (!this.activeProject) { return }
     let urlMatch
     if (this.activeProject.description && (urlMatch = this.activeProject.description.match(urlRegexp))) {
-      return html`<a href="${urlMatch[0]}" target="_blank" style="color:inherit">${this.activeProject.name} (${this.activeProject.items.length})</a>`
+      return html`<a href="${urlMatch[0]}" target="_blank" style="color:inherit">${this.activeProject.name}</a>`
     }
     else {
       return html`${this.activeProject.name}`
@@ -260,9 +290,13 @@ export class AppContainer extends LitElement {
   //   }
   // }
 
+  getItemStripFromItem (item: Item) {
+    return [...this.itemStrips].find((strip) => strip.item === item)
+  }
+
   scrollToHighlightedStrip () {
     if (this.highlightedStrip) {
-      this.itemsBox.scrollTop = this.highlightedStrip.offsetTop - (this.itemsBox.offsetTop + 24)
+      window.scrollTo(0, this.highlightedStrip.offsetTop - 100)
     }
   }
 

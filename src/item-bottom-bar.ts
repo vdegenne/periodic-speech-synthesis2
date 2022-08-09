@@ -1,4 +1,5 @@
 import { Button } from '@material/mwc-button';
+import { IconButton } from '@material/mwc-icon-button';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, query, state } from 'lit/decorators.js';
 import { AppContainer } from './app-container';
@@ -44,7 +45,7 @@ export class ItemBottomBar extends LitElement {
   render () {
     if (this.item == undefined) { return nothing }
     return html`
-    <div id=container>
+    <div id=container @click=${(e)=>{ e.stopPropagation(); if (e.target instanceof IconButton) { return }; this.dispatchEvent(new CustomEvent('click', { detail: { item: this.item }}))}}>
       <item-formatter value="${this.item.v}" style="flex:1"></item-formatter>
       <div id=controls>
         <mwc-icon-button icon=volume_up @click=${()=>{playWord(this.item.v)}}></mwc-icon-button>

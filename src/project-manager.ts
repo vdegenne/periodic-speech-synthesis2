@@ -98,6 +98,27 @@ export class ProjectsManager {
     }
   }
 
+  moveItemUp (item: Item) {
+    const project = this.getProjectFromItem(item)
+    if (project) {
+      const items = project.items
+      const itemIndex = items.indexOf(item)
+      if (itemIndex == items.length - 1) { return }
+      items.splice(itemIndex, 2, items[itemIndex + 1], items[itemIndex])
+      this.saveProjectsToLocalStorage()
+    }
+  }
+  moveItemDown (item: Item) {
+    const project = this.getProjectFromItem(item)
+    if (project) {
+      const items = project.items
+      const itemIndex = items.indexOf(item)
+      if (itemIndex == 0) { return }
+      items.splice(itemIndex - 1, 2, items[itemIndex], items[itemIndex - 1])
+      this.saveProjectsToLocalStorage()
+    }
+  }
+
   // updateCurrentProjectNameFromHash () {
   //   this.currentProjectName = decodeURIComponent(window.location.hash.slice(1))
   // }
