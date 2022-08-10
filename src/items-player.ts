@@ -115,19 +115,20 @@ export class ItemsPlayer extends LitElement {
     }
   }
 
-  pickRandomItem() {
+  async pickRandomItem() {
     // Filter the items
     const activeItems = this.activeItems
     let candidates = activeItems.filter(item => !this._historyList.includes(item))
 
-    this.progressionRate = ~~((activeItems.length - candidates.length) * (100 / activeItems.length))
-
     if (candidates.length == 0) {
       playResetAudio()
+      await sleep(1000)
       this._historyList = []
       candidates = this.activeItems // @TODO filter if "include inactive items" is checked
       if (candidates.length == 0) { return null }
     }
+
+    this.progressionRate = ~~((activeItems.length - candidates.length) * (100 / activeItems.length))
     return candidates[~~(Math.random() * candidates.length)]
   }
 
