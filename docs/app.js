@@ -1297,7 +1297,7 @@ const bi=S`.mdc-text-field{height:100%}.mdc-text-field__input{resize:none}`
         discrete
         withTickMarks
         min=0
-        max=100
+        max=300
         step=5
         value=${this.pauseTimeS}
         @change=${e=>{this.pauseTimeS=e.detail.value}}

@@ -48,7 +48,7 @@ export class ItemsPlayer extends LitElement {
         discrete
         withTickMarks
         min=0
-        max=100
+        max=300
         step=5
         value=${this.pauseTimeS}
         @change=${e => { this.pauseTimeS = e.detail.value }}
