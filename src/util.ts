@@ -1,6 +1,6 @@
 import { isFullJapanese } from 'asian-regexps'
 import { getExactSearch } from 'japanese-data-module'
-import { speakJapanese } from './speech'
+import { speakJapanese, speakEnglish } from './speech'
 
 /**
  * AUDIO
@@ -107,6 +107,8 @@ export async function playWord(word: string) {
   }
   else {
     // @TODO another language
+    // default to english
+    await speakEnglish(word)
   }
 }
 
